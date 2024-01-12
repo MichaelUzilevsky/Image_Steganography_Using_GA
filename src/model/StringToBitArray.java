@@ -1,3 +1,5 @@
+package model;
+
 import java.util.BitSet;
 
 public class StringToBitArray {
