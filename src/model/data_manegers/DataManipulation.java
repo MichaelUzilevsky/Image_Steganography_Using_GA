@@ -1,25 +1,26 @@
-package model;
-
-import java.util.BitSet;
+package model.data_manegers;
 
 public class DataManipulation {
-    private DataManipulation(){}
+    private final BitArray bitArray;
+
+    public DataManipulation(BitArray bitArray){
+        this.bitArray = bitArray;
+    }
 
     /**
      * Modifies a bit array based on the given parameters of a steganographic algorithm.
      * It performs swapping and optional complementing of bits within the array.
      *
-     * @param bitArray  bit array representing secret data.
      * @param ns        Number of swaps to perform.
      * @param off       Offset for starting the swapping in the second part of the array.
      * @param dd        Data direction (0 for left-to-right, 1 for right-to-left in the second part).
      * @param dp        Data polarity (00, 01, 10, 11) determining the complementing behavior.
      * @return          The modified boolean array representing rearranged secret data.
      */
-    public static BitSet modifyBitArray(BitSet bitArray, int ns, int off, int dd, String dp) {
-        int len = bitArray.length();
+    public BitArray modifyBitArray(int ns, int off, int dd, String dp) {
+        int len = bitArray.size();
         int mid = len / 2;
-        BitSet modifiedArray = (BitSet) bitArray.clone();
+        BitArray modifiedArray = (BitArray) bitArray.clone();
 
         for (int i = 0; i < ns; i++) {
             int firstIndex = i % mid;
@@ -42,7 +43,7 @@ public class DataManipulation {
      * @param len   Total length of the bit array.
      * @return      The calculated index in the second part of the array for swapping.
      */
-    private static int calculateSecondIndex(int mid, int off, int i, int dd, int len) {
+    private int calculateSecondIndex(int mid, int off, int i, int dd, int len) {
         if (dd == 0) {
             return (mid + off + i) % mid + mid;
         } else {
@@ -59,7 +60,7 @@ public class DataManipulation {
      * @param secondIndex  Index of the second bit in the array to be swapped.
      * @param dp           Data polarity parameter, controlling the complementing of swapped bits.
      */
-    private static void swapBits(BitSet bitArray, int firstIndex, int secondIndex, String dp) {
+    private void swapBits(BitArray bitArray, int firstIndex, int secondIndex, String dp) {
         boolean firstBit = bitArray.get(firstIndex);
         boolean secondBit = bitArray.get(secondIndex);
 
@@ -82,8 +83,8 @@ public class DataManipulation {
      * @param length Number of bits to convert.
      * @return bitset representation of the boolean[]
      */
-    public static BitSet boolToBitSet(boolean[] bits, int offset, int length) {
-        BitSet bitset = new BitSet(length - offset);
+    public static BitArray boolToBitSet(boolean[] bits, int offset, int length) {
+        BitArray bitset = new BitArray(length - offset);
         for (int i = offset; i < length; i++)
             bitset.set(i - offset, bits[i]);
 
@@ -92,15 +93,18 @@ public class DataManipulation {
 
 
     public static void main(String[] args) {
-        boolean[] boolArray = {true, false, true, true, true, false, true,
-                            false, false, false, true, false, true, false};
+        boolean[] boolArray = {false, false, true, false, true, false,
+                true, false, true, false, true, true};
 
-        BitSet bitArray = boolToBitSet(boolArray, 0, boolArray.length);
 
-        BitSet modifiedArray = modifyBitArray(bitArray, 4, 3, 1, "11");
+        BitArray bitArray = boolToBitSet(boolArray, 0, boolArray.length);
 
-        System.out.println("Original Array: " + StringToBitArray.StringRepresentation(bitArray, ""));
-        System.out.println("Modified Array: " + StringToBitArray.StringRepresentation(modifiedArray, ""));
+        DataManipulation dataManipulation = new DataManipulation(bitArray);
+
+        BitArray modifiedArray = dataManipulation.modifyBitArray(4, 3, 1, "11");
+
+        System.out.println("Original Array: " + bitArray);
+        System.out.println("Modified Array: " + modifiedArray);
     }
 
 }
