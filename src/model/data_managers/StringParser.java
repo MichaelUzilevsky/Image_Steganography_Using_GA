@@ -1,4 +1,4 @@
-package model.data_manegers;
+package model.data_managers;
 
 
 import model.utils.ConstantsClass;

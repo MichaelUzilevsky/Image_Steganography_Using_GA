@@ -1,6 +1,6 @@
 package model.genetic_algorithm.population_structure;
 
-import model.data_manegers.BitArray;
+import model.data_managers.BitArray;
 import model.utils.BitsUtils;
 import model.utils.ConstantsClass;
 import java.util.ArrayList;
@@ -45,8 +45,8 @@ public class Chromosome implements Comparable<Chromosome> {
      */
     public Chromosome(int imageWidth, int imageHeight){
 
-        numberOfSwapsSize = offsetSize = BitsUtils.bitsNeeded(ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL *
-                imageHeight * imageWidth) / 2;
+        numberOfSwapsSize = offsetSize = BitsUtils.bitsNeeded((ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL *
+                imageHeight * imageWidth) / 2);
 
         this.flexibleGene = new BitArray(FLEXIBLE_GENE_SIZE);
         this.dataDirectionGene = new BitArray(DATA_DIRECTION_SIZE);
@@ -133,6 +133,25 @@ public class Chromosome implements Comparable<Chromosome> {
         this.fitnessScore = fitnessScore;
     }
 
+    public BitArray getDataDirectionGene() {
+        return dataDirectionGene;
+    }
+
+    public BitArray getDataPolarityGene() {
+        return dataPolarityGene;
+    }
+
+    public BitArray getFlexibleGene() {
+        return flexibleGene;
+    }
+
+    public BitArray getNumberOfSwapsGene() {
+        return numberOfSwapsGene;
+    }
+
+    public BitArray getOffsetGene() {
+        return offsetGene;
+    }
 
     /**
      * comparison based on the fitness score of the chromosome

@@ -1,4 +1,4 @@
-package model.data_manegers;
+package model.data_managers;
 
 public class BitArray implements Cloneable{
     private byte[] bitArray;
@@ -117,10 +117,19 @@ public class BitArray implements Cloneable{
         }
     }
 
+    /**
+     * flips the bit at the specific index
+     * @param index index in the bitArray
+     */
     public void flip(int index) {
         set(index, !get(index));
     }
 
+    /**
+     * return the int representation of the bitArray
+     * 1100 -> 12
+     * @return the integer value of the bitArray
+     */
     public int toInt() {
         int sum = 0, base = 1;
         for (int i = size() - 1; i >= 0; i--) {

@@ -1,8 +1,8 @@
 package model.genetic_algorithm;
 
 import javafx.scene.image.Image;
-import model.data_manegers.DataManipulation;
-import model.data_manegers.StringParser;
+import model.data_managers.DataManipulation;
+import model.data_managers.StringParser;
 import model.genetic_algorithm.crossover.CrossoverStrategy;
 import model.genetic_algorithm.crossover.MultiPointCrossover;
 import model.genetic_algorithm.fitness.FitnessFunction;

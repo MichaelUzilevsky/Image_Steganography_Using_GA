@@ -1,26 +1,35 @@
-package model.data_manegers;
+package model.data_managers;
+
+import model.genetic_algorithm.population_structure.Chromosome;
 
 public class DataManipulation {
-    private final BitArray bitArray;
+    private final BitArray data;
 
-    public DataManipulation(BitArray bitArray){
-        this.bitArray = bitArray;
+    public DataManipulation(BitArray data){
+        this.data = data;
     }
 
     /**
      * Modifies a bit array based on the given parameters of a steganographic algorithm.
      * It performs swapping and optional complementing of bits within the array.
      *
-     * @param ns        Number of swaps to perform.
-     * @param off       Offset for starting the swapping in the second part of the array.
-     * @param dd        Data direction (0 for left-to-right, 1 for right-to-left in the second part).
-     * @param dp        Data polarity (00, 01, 10, 11) determining the complementing behavior.
+     * @param chromosome representing the chromosome, witch based on his genes the data will change.
+     * ns        Number of swaps to perform.
+     * off       Offset for starting the swapping in the second part of the array.
+     * dd        Data direction (0 for left-to-right, 1 for right-to-left in the second part).
+     * dp        Data polarity (00, 01, 10, 11) determining the complementing behavior.
      * @return          The modified boolean array representing rearranged secret data.
      */
-    public BitArray modifyBitArray(int ns, int off, int dd, String dp) {
-        int len = bitArray.size();
+    public BitArray modifyBitArray(Chromosome chromosome) {
+
+        int ns = chromosome.getNumberOfSwapsGene().toInt();
+        int off = chromosome.getOffsetGene().toInt();
+        int dd = chromosome.getDataDirectionGene().toInt();
+        int dp = chromosome.getDataPolarityGene().toInt();
+
+        int len = data.size();
         int mid = len / 2;
-        BitArray modifiedArray = (BitArray) bitArray.clone();
+        BitArray modifiedArray = (BitArray) data.clone();
 
         for (int i = 0; i < ns; i++) {
             int firstIndex = i % mid;
@@ -60,14 +69,15 @@ public class DataManipulation {
      * @param secondIndex  Index of the second bit in the array to be swapped.
      * @param dp           Data polarity parameter, controlling the complementing of swapped bits.
      */
-    private void swapBits(BitArray bitArray, int firstIndex, int secondIndex, String dp) {
+    private void swapBits(BitArray bitArray, int firstIndex, int secondIndex, int dp) {
+        String dpStr = Integer.toBinaryString(dp);
         boolean firstBit = bitArray.get(firstIndex);
         boolean secondBit = bitArray.get(secondIndex);
 
-        if (dp.charAt(0) == '0') {
+        if (dpStr.charAt(0) == '0') {
             firstBit = !firstBit;
         }
-        if (dp.charAt(1) == '0') {
+        if (dpStr.charAt(1) == '0') {
             secondBit = !secondBit;
         }
 
@@ -101,7 +111,8 @@ public class DataManipulation {
 
         DataManipulation dataManipulation = new DataManipulation(bitArray);
 
-        BitArray modifiedArray = dataManipulation.modifyBitArray(4, 3, 1, "11");
+        Chromosome chromosome = new Chromosome(4,4);
+        BitArray modifiedArray = dataManipulation.modifyBitArray(chromosome);
 
         System.out.println("Original Array: " + bitArray);
         System.out.println("Modified Array: " + modifiedArray);

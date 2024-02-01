@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.PriorityQueue;
 
 public class PriorityQueuePopulation implements PopulationImplementation {
-    private int populationSize;
-    private PriorityQueue<Chromosome> population;
+    private final int populationSize;
+    private final PriorityQueue<Chromosome> population;
 
     public PriorityQueuePopulation(int populationSize){
         this.populationSize = populationSize;
