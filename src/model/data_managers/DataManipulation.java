@@ -1,6 +1,7 @@
 package model.data_managers;
 
 import model.genetic_algorithm.population_structure.Chromosome;
+import model.genetic_algorithm.population_structure.Genes;
 
 public class DataManipulation {
     private final BitArray data;
@@ -22,10 +23,10 @@ public class DataManipulation {
      */
     public BitArray modifyBitArray(Chromosome chromosome) {
 
-        int ns = chromosome.getNumberOfSwapsGene().toInt();
-        int off = chromosome.getOffsetGene().toInt();
-        int dd = chromosome.getDataDirectionGene().toInt();
-        int dp = chromosome.getDataPolarityGene().toInt();
+        int ns = chromosome.getGene(Genes.NS).toInt();
+        int off = chromosome.getGene(Genes.OFF).toInt();
+        int dd = chromosome.getGene(Genes.DD).toInt();
+        int dp = chromosome.getGene(Genes.DP).toInt();
 
         int len = data.size();
         int mid = len / 2;

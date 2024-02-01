@@ -59,6 +59,17 @@ public class BitArray implements Cloneable{
 
     }
 
+    public void set(int startIndex, BitArray values){
+        if(startIndex + values.size > size)
+            throw new IndexOutOfBoundsException("Index out of bounds: " + (startIndex + values.size()) + "\nThe BitArray size is: " + size);
+
+        int valuesIndex = 0;
+        for (int i = startIndex; i < startIndex + values.size; i++) {
+            set(i, values.get(valuesIndex++));
+        }
+    }
+
+
     /**
      * Gets the value of the bit at the specified index.
      *
