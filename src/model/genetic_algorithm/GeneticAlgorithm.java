@@ -1,6 +1,8 @@
 package model.genetic_algorithm;
 
 import javafx.scene.image.Image;
+import model.data_managers.BitArray;
+import model.data_managers.DataEmbedding;
 import model.data_managers.DataManipulation;
 import model.data_managers.StringParser;
 import model.genetic_algorithm.crossover.CrossoverStrategy;
@@ -9,43 +11,45 @@ import model.genetic_algorithm.fitness.FitnessFunction;
 import model.genetic_algorithm.fitness.PSNRFitnessFunction;
 import model.genetic_algorithm.population_structure.Chromosome;
 import model.genetic_algorithm.population_structure.PopulationImplementation;
-import model.genetic_algorithm.population_structure.PriorityQueuePopulation;
-import model.genetic_algorithm.selection.ElitismSelection;
+import model.genetic_algorithm.population_structure.ListPopulation;
+import model.genetic_algorithm.selection.RankedSelection;
 import model.genetic_algorithm.selection.SelectionStrategy;
 
-import java.util.BitSet;
-
 public class GeneticAlgorithm {
-    private final int GENERATIONS = 1000;
-    private final int POPULATION_SIZE = 100;
-    private Image originalImage;
-    private String secretData;
-    private StringParser parser;
-    private BitSet secretDataBitArray;
-    private DataManipulation dataManipulation;
-    private PopulationImplementation population;
-    private FitnessFunction fitnessFunction;
-    private SelectionStrategy selection;
-    private CrossoverStrategy crossover;
+    private final int GENERATIONS;
+    private final int POPULATION_SIZE;
 
-    public GeneticAlgorithm(){
-
+    {
+        GENERATIONS = 1000;
+        POPULATION_SIZE = 100;
     }
+
+    private final Image originalImage;
+    private final String secretData;
+    private final StringParser parser;
+    private final DataManipulation dataManipulation;
+    private final DataEmbedding dataEmbedding;
+    private final BitArray secretDataBitArray;
+    private final PopulationImplementation population;
+    private final FitnessFunction fitnessFunction;
+    private final SelectionStrategy selection;
+    private final CrossoverStrategy crossover;
+
     public GeneticAlgorithm(Image originalImage, String secretData){
         this.originalImage = originalImage;
-
         this.secretData = secretData;
 
         parser = new StringParser(secretData);
-        //secretDataBitArray = parser.convertToBitArray();
+        secretDataBitArray = parser.convertToBitArray();
 
-        //dataManipulation = new DataManipulation(secretDataBitArray);
+        dataManipulation = new DataManipulation(secretDataBitArray);
+        dataEmbedding = new DataEmbedding(originalImage);
 
-        population = new PriorityQueuePopulation(POPULATION_SIZE);
+        population = new ListPopulation(POPULATION_SIZE);
 
         fitnessFunction = new PSNRFitnessFunction();
 
-        selection = new ElitismSelection();
+        selection = new RankedSelection();
 
         crossover = new MultiPointCrossover();
 
@@ -53,22 +57,9 @@ public class GeneticAlgorithm {
     }
 
     public Chromosome run(){
-        return null;
-    }
+        for (int i = 0; i < GENERATIONS; i++) {
 
-    public Chromosome getBestChromosome() {
-        return  null;
-    }
-
-    public Image bestEmbedding(){
-        return  null;
-    }
-
-    public void setOriginalImage(Image originalImage) {
-        this.originalImage = originalImage;
-    }
-
-    public void setSecretData(String secretData) {
-        this.secretData = secretData;
+        }
+        return population.getFittestChromosome();
     }
 }

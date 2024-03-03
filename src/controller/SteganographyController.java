@@ -2,20 +2,18 @@ package controller;
 
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import model.genetic_algorithm.GeneticAlgorithm;
 import view.SteganographyUI;
 
 import java.io.File;
 
 public class SteganographyController {
     private final SteganographyUI view;
-    private final GeneticAlgorithm geneticAlgorithm;
+    //private final GeneticAlgorithm geneticAlgorithm;
 
     public SteganographyController(SteganographyUI view) {
         this.view = view;
         attachActionHandlers();
-        this.geneticAlgorithm = new GeneticAlgorithm();
+        //this.geneticAlgorithm = new GeneticAlgorithm();
     }
 
     public void attachActionHandlers() {

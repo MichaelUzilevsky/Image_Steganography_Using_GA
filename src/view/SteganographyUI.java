@@ -13,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.awt.event.WindowEvent;
 import java.util.Objects;
 import java.util.function.Consumer;
 

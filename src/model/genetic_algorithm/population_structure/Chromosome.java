@@ -24,7 +24,6 @@ public class Chromosome implements Comparable<Chromosome> {
     private static final int FLEXIBLE_GENE_SIZE = 5; // 4! = 24 -> 11000 MAX 5 BITS
     private static final int DATA_DIRECTION_SIZE = 1; // 0 OR 1
     private static final int DATA_POLARITY_SIZE = 2; // 00 01 10 11
-    private static final int MUTATIONS_PER_GENE = 2;
     private static GeneSizeManager geneSizeManager;
     private final int[] genesStartingIndex;
     private final Genes[] genesOrder;
@@ -60,6 +59,7 @@ public class Chromosome implements Comparable<Chromosome> {
         return BitsUtils.bitsNeeded((ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL *
                 imageHeight * imageWidth) / 2);
     }
+
     private void setGeneSizeManager(int numberOfSwapsSize, int offsetSize){
         geneSizeManager = new GeneSizeManager();
         geneSizeManager.setGeneSize(Genes.NS, numberOfSwapsSize);
@@ -106,17 +106,21 @@ public class Chromosome implements Comparable<Chromosome> {
      * Mutates the chromosome by applying mutations to each gene.
      */
     public void mutateChromosome() {
-
+        for (Genes gene : genesOrder){
+            mutateGene(getGeneStartingIndex(gene), geneSizeManager.getGeneSize(gene));
+        }
     }
 
     /**
-     * Mutates a given gene by flipping two of its bits.
-     *
-     * @param gene The gene to be mutated.
+     * mutate a given gene by flipping its bits
+     * @param start the starting index of this gene.
+     * @param geneSize the size of this gene.
      */
-    private void mutateGene(BitArray gene, int start) {
-        for (int i = 0; i < MUTATIONS_PER_GENE; i++) {
-            gene.flip(random.nextInt(start, start + gene.size()));
+    private void mutateGene(int start, int geneSize) {
+        double mutationProbability = 1.0 / geneSize;
+        for (int i = 0; i < geneSize; i++) {
+            if (random.nextDouble() <= mutationProbability)
+                genes.flip(start + i);
         }
     }
 
@@ -171,7 +175,7 @@ public class Chromosome implements Comparable<Chromosome> {
 
     public BitArray getGene(Genes gene) {
         int indexInGeneArr = findIndexByGeneName(gene);
-        int startIndex = genesStartingIndex[indexInGeneArr];
+        int startIndex = getGeneStartingIndex(gene);
         int endIndex = (indexInGeneArr == genesOrder.length - 1) ? genes.size() : genesStartingIndex[indexInGeneArr + 1];
         BitArray geneVal = new BitArray(endIndex  - startIndex);
         int geneIndex = 0;
@@ -179,6 +183,11 @@ public class Chromosome implements Comparable<Chromosome> {
             geneVal.set(geneIndex++, genes.get(i));
         }
         return geneVal;
+    }
+
+    private int getGeneStartingIndex(Genes gene){
+        int indexInGeneArr = findIndexByGeneName(gene);
+        return genesStartingIndex[indexInGeneArr];
     }
 
     public BitArray getFlexibleGene() {
@@ -218,6 +227,7 @@ public class Chromosome implements Comparable<Chromosome> {
         Chromosome c1 = new Chromosome(4, 4);
         System.out.println(c);
         System.out.println(c1);
-
+        c.mutateChromosome();
+        System.out.println(c);
     }
 }

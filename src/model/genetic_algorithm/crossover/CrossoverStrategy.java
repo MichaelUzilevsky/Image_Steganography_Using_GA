@@ -13,5 +13,5 @@ public interface CrossoverStrategy {
      * @param parent2 chromosome
      * @return list of the received offsprings
      */
-    public List<Chromosome> crossover(Chromosome parent1, Chromosome parent2);
+    List<Chromosome> crossover(Chromosome parent1, Chromosome parent2);
 }
