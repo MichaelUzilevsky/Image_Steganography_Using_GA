@@ -11,7 +11,7 @@ public class DataManipulation {
     }
 
     /**
-     * Modifies a bit array based on the given parameters of a steganographic algorithm.
+     * Modifies a bit array based on the given parameters of a steganography algorithm.
      * It performs swapping and optional complementing of bits within the array.
      *
      * @param chromosome representing the chromosome, witch based on his genes the data will change.
@@ -30,7 +30,7 @@ public class DataManipulation {
 
         int len = data.size();
         int mid = len / 2;
-        BitArray modifiedArray = (BitArray) data.clone();
+        BitArray modifiedArray = data.clone();
 
         for (int i = 0; i < ns; i++) {
             int firstIndex = i % mid;

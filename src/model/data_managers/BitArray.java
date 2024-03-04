@@ -1,5 +1,7 @@
 package model.data_managers;
 
+import model.utils.BitsUtils;
+
 public class BitArray implements Cloneable{
     private byte[] bitArray;
     private final int size;
@@ -150,10 +152,32 @@ public class BitArray implements Cloneable{
         return sum;
     }
 
+    public void modifyBitArrayByNumber(int number) {
+        // Check if the number can fit in the BitArray
+        int bitsNeeded = BitsUtils.bitsNeeded(number);
+        if (bitsNeeded > size) {
+            throw new IllegalArgumentException("Number is too large to insert into this BitArray.");
+        }
+
+        // Clear the BitArray before setting new values
+        for (int i = 0; i < size; i++) {
+            set(i, false);
+        }
+
+
+        for (int i = 0; i < size; i++) {
+            boolean value = ((number >> (size - 1 - i)) & 1) == 1;
+            set(i, value);
+        }
+
+    }
+
     public static void main(String[] args){
         BitArray bitArray1 = new BitArray(5);
         bitArray1.set(0,1, true);
         System.out.println(bitArray1.toInt());
+        System.out.println(bitArray1);
+        bitArray1.modifyBitArrayByNumber(12);
         System.out.println(bitArray1);
     }
 }

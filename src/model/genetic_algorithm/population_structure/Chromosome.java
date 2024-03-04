@@ -21,6 +21,7 @@ public class Chromosome implements Comparable<Chromosome> {
     public static final Random random = new Random();
 
     // fixed sizes of genes
+    public static final int POSSIBLE_COMBINATIONS_AMOUNT_FOR_FLEXIBLE_GENE = 24; // 4!
     private static final int FLEXIBLE_GENE_SIZE = 5; // 4! = 24 -> 11000 MAX 5 BITS
     private static final int DATA_DIRECTION_SIZE = 1; // 0 OR 1
     private static final int DATA_POLARITY_SIZE = 2; // 00 01 10 11
@@ -55,6 +56,18 @@ public class Chromosome implements Comparable<Chromosome> {
         initiateChromosome();
     }
 
+    public Chromosome(BitArray flexibleGene, BitArray genes, int numberOfSwapsSize, int offsetSize){
+        this.genes = genes;
+        this.flexibleGene = flexibleGene;
+
+        setGeneSizeManager(numberOfSwapsSize, offsetSize);
+
+        genesOrder = new Genes[4];
+        genesStartingIndex = new int[4];
+
+        setIndexesForGenes(flexibleGene.toInt());
+    }
+
     private int calculateNSandOFFGenesSizes(int imageHeight, int imageWidth){
         return BitsUtils.bitsNeeded((ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL *
                 imageHeight * imageWidth) / 2);
@@ -66,18 +79,6 @@ public class Chromosome implements Comparable<Chromosome> {
         geneSizeManager.setGeneSize(Genes.OFF, offsetSize);
         geneSizeManager.setGeneSize(Genes.DD, DATA_DIRECTION_SIZE);
         geneSizeManager.setGeneSize(Genes.DP, DATA_POLARITY_SIZE);
-    }
-
-    public Chromosome(BitArray flexibleGene, BitArray genes, int numberOfSwapsSize, int offsetSize){
-        this.genes = genes;
-        this.flexibleGene = flexibleGene;
-
-        setGeneSizeManager(numberOfSwapsSize, offsetSize);
-
-        genesOrder = new Genes[4];
-        genesStartingIndex = new int[4];
-
-        setIndexesForGenes(flexibleGene.toInt());
     }
 
     /**
@@ -132,12 +133,13 @@ public class Chromosome implements Comparable<Chromosome> {
      */
     public void setIndexesForGenes(int flexibleGeneValue) {
         flexibleGeneValue %= 24;
+        int tempFlexibleGeneValue = flexibleGeneValue;
         List<Genes> availableGenes = new ArrayList<>(Arrays.asList(Genes.NS, Genes.OFF, Genes.DD, Genes.DP));
         int[] factorials = {6, 2, 1}; // Factorials for n-1, n-2, n-3 (for n=4)
 
         for (int i = 0; i < 3; i++) { // Only need to calculate the first 3 positions
-            int pos = flexibleGeneValue / factorials[i] % (4 - i); // Ensure pos is within the current list size
-            flexibleGeneValue %= factorials[i];
+            int pos = tempFlexibleGeneValue / factorials[i] % (4 - i); // Ensure pos is within the current list size
+            tempFlexibleGeneValue %= factorials[i];
             genesOrder[i] = availableGenes.remove(pos);
         }
 
@@ -145,6 +147,8 @@ public class Chromosome implements Comparable<Chromosome> {
         genesOrder[3] = availableGenes.get(0);
 
         setIndexes(genesOrder);
+
+        flexibleGene.modifyBitArrayByNumber(flexibleGeneValue);
     }
 
     private void setIndexes(Genes[] genesArr) {
@@ -161,7 +165,7 @@ public class Chromosome implements Comparable<Chromosome> {
         return fitnessScore;
     }
 
-    public void setFitnessScore(float fitnessScore) {
+    public void setFitnessScore(double fitnessScore) {
         this.fitnessScore = fitnessScore;
     }
 
@@ -227,7 +231,7 @@ public class Chromosome implements Comparable<Chromosome> {
         Chromosome c1 = new Chromosome(4, 4);
         System.out.println(c);
         System.out.println(c1);
-        c.mutateChromosome();
+        c.setIndexesForGenes(0);
         System.out.println(c);
     }
 }

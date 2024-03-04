@@ -4,7 +4,7 @@ import java.util.*;
 
 public class ListPopulation implements PopulationImplementation {
     private final int populationSize;
-    private final List<Chromosome> population;
+    private List<Chromosome> population;
 
     public ListPopulation(int populationSize){
         this.populationSize = populationSize;
@@ -40,13 +40,13 @@ public class ListPopulation implements PopulationImplementation {
     }
 
     @Override
-    public void add(Chromosome chromosome){
-        this.population.add(chromosome);
+    public List<Chromosome> getPopulation() {
+        return this.population;
     }
 
     @Override
-    public List<Chromosome> getPopulation() {
-        return this.population;
+    public void setPopulation(List<Chromosome> population) {
+        this.population = population;
     }
 
 

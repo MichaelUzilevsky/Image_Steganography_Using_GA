@@ -1,4 +1,5 @@
 package view;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -9,9 +10,10 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import model.genetic_algorithm.fitness.PSNRFitnessFunction;
 
-public class TestingView extends Application{
+public class TestingView extends Application {
+
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         try {
             // Load the original image
             Image originalImage = new Image("file:/Users/michael/Downloads/mario.png");
@@ -32,7 +34,7 @@ public class TestingView extends Application{
             // Drawing the "X"
             for (int i = 0; i < modifiedImage.getWidth(); i++) {
                 writer.setArgb(i, i, 0xFF000000);
-                writer.setArgb(i, (int)modifiedImage.getWidth() -1 - i, 0xFF000000);
+                writer.setArgb(i, (int) modifiedImage.getWidth() - 1 - i, 0xFF000000);
             }
 
             // Calculate the PSNR between the original and modified images
@@ -53,6 +55,7 @@ public class TestingView extends Application{
             System.err.println("Error in application: " + e.getMessage());
             e.printStackTrace();
         }
+
     }
 
     public static void main(String[] args) {

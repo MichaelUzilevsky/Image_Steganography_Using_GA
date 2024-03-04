@@ -42,16 +42,16 @@ public class DataEmbedding {
         for(int pixelIndex = 0; pixelIndex < pixelsToEmbed; pixelIndex++) {
             int dataIndex = pixelIndex * ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL;
 
-            int row = pixelIndex / width;
-            int col = pixelIndex % width;
+            int y = pixelIndex / width; // y-coordinate (rows)
+            int x = pixelIndex % width; // x-coordinate (columns)
 
 
-            if (row < height && col < width) {
+            if (x < width && y < height) {
                 int redData = (data.get(dataIndex) ? 1 : 0) | (data.get(dataIndex + 1) ? 2 : 0);
                 int greenData = (data.get(dataIndex + 2) ? 1 : 0) | (data.get(dataIndex + 3) ? 2 : 0);
                 int blueData = (data.get(dataIndex + 4) ? 1 : 0) | (data.get(dataIndex + 5) ? 2 : 0);
 
-                Color color = originalImage.getPixelReader().getColor(row, col);
+                Color color = originalImage.getPixelReader().getColor(x, y);
 
                 // Embedding data into the color components
                 int red = ((int) (color.getRed() * 255) & 0xFC) | redData;
@@ -59,7 +59,7 @@ public class DataEmbedding {
                 int blue = ((int) (color.getBlue() * 255) & 0xFC) | blueData;
 
                 Color newColor = Color.rgb(red, green, blue, 1.0);
-                pixelWriter.setColor(row, col, newColor);
+                pixelWriter.setColor(x, y, newColor);
             }
         }
 

@@ -14,36 +14,39 @@ public class RankedSelection implements SelectionStrategy {
     private final double ELITISM_PERCENTAGE;
 
     public RankedSelection() {
-        ELITISM_PERCENTAGE = 0.15;
+        ELITISM_PERCENTAGE = 0.10;
     }
 
     /**
      * Selects the next chromosomes for the next generation, those chromosomes will later be crossover and mutated
-     * This method incorporates elitism by directly carrying over a percentage of the top chromosomes.
      *
      * @param currentGeneration The current population from which to select the next generation.
      * @return A List of chromosomes selected to form the next generation.
      */
     @Override
-    public List<Chromosome> selectNextGeneration(PopulationImplementation currentGeneration) {
+    public List<Chromosome> selectNextGenerationForCrossover(PopulationImplementation currentGeneration) {
+
+        int eliteSize = (int) (currentGeneration.getPopulationSize() * ELITISM_PERCENTAGE);
+        // Selection for the rest of the population
+        int selectionSize = currentGeneration.getPopulationSize() - eliteSize;
+        Collection<Chromosome> selectedChromosomes = selectForCrossover(currentGeneration, selectionSize);
+
+        return new ArrayList<>(selectedChromosomes);
+
+    }
+
+    @Override
+    public List<Chromosome> selectNextGenerationUnchanged(PopulationImplementation currentGeneration) {
         List<Chromosome> nextGeneration = new ArrayList<>();
         List<Chromosome> sortedCurrentGen = new ArrayList<>(currentGeneration.getPopulation());
         sortedCurrentGen.sort(Collections.reverseOrder()); // high fitness at the top
-
 
         // Elitism: Take top ELITISM_PERCENTAGE% of the best chromosomes directly to the next generation
         int eliteSize = (int) (currentGeneration.getPopulationSize() * ELITISM_PERCENTAGE);
         for (int i = 0; i < eliteSize; i++) {
             nextGeneration.add(sortedCurrentGen.get(i));
         }
-
-        // Selection for the rest of the population
-        int selectionSize = currentGeneration.getPopulationSize() - eliteSize;
-        Collection<Chromosome> selectedChromosomes = selectForCrossover(currentGeneration, selectionSize);
-        nextGeneration.addAll(selectedChromosomes);
-
         return nextGeneration;
-
     }
 
 

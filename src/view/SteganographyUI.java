@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class SteganographyUI extends Application{
-    private SteganographyController controller;
     private TextArea secretMessageArea;
     private ImageView imageView;
     private Consumer<ActionEvent> onEncodeAction;
@@ -29,7 +28,7 @@ public class SteganographyUI extends Application{
     public void start(Stage stage) {
 
         this.primaryStage = stage;
-        this.controller = new SteganographyController(this);
+        SteganographyController controller = new SteganographyController(this);
 
         controller.attachActionHandlers();
 
@@ -123,6 +122,7 @@ public class SteganographyUI extends Application{
         imageView.setImage(image);
     }
 
+    public Image getImage(){ return  this.imageView.getImage();}
 
     public static void main(String[] args) {
         launch(args);
@@ -132,5 +132,9 @@ public class SteganographyUI extends Application{
         return primaryStage;
     }
 
+    public void clearView() {
+        secretMessageArea.clear(); // Clear the secret message area
+        imageView.setImage(null); // Clear the image view
+    }
 }
 

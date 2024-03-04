@@ -4,13 +4,9 @@ import java.util.List;
 
 public interface PopulationImplementation {
 
-    /**
-     * adds chromosome to the population
-     * @param chromosome not null
-     */
-    void add(Chromosome chromosome);
-
     List<Chromosome> getPopulation();
+
+    void setPopulation(List<Chromosome> population);
 
     /**
      * first initialize a complete random population of chromosomes
