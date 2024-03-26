@@ -2,6 +2,7 @@ package model.data_managers;
 
 import model.genetic_algorithm.population_structure.Chromosome;
 import model.genetic_algorithm.population_structure.Genes;
+import model.utils.UtilsMethods;
 
 public class DataManipulation {
     private final BitArray data;
@@ -23,10 +24,15 @@ public class DataManipulation {
      */
     public BitArray modifyBitArray(Chromosome chromosome) {
 
-        int ns = chromosome.getGene(Genes.NS).toInt();
-        int off = chromosome.getGene(Genes.OFF).toInt();
+        int size = UtilsMethods.numberOfSwapsForData(data.size());
+        int ns = chromosome.getGene(Genes.NS).toInt() % size;
+        int off = chromosome.getGene(Genes.OFF).toInt() % size;
         int dd = chromosome.getGene(Genes.DD).toInt();
         int dp = chromosome.getGene(Genes.DP).toInt();
+
+        return modifyBitArray(ns, off, dd, dp);
+    }
+    public BitArray modifyBitArray(int ns, int off,  int dd,  int dp) {
 
         int len = data.size();
         int mid = len / 2;
@@ -71,15 +77,17 @@ public class DataManipulation {
      * @param dp           Data polarity parameter, controlling the complementing of swapped bits.
      */
     private void swapBits(BitArray bitArray, int firstIndex, int secondIndex, int dp) {
-        String dpStr = Integer.toBinaryString(dp);
+
         boolean firstBit = bitArray.get(firstIndex);
         boolean secondBit = bitArray.get(secondIndex);
 
-        if (dpStr.charAt(0) == '0') {
-            firstBit = !firstBit;
+        // Check if the first bit of dp is set (dp & 2), which corresponds to the second bit from the right in binary
+        if ((dp & 2) != 0) {
+            firstBit = !firstBit; // Complement if the second bit of dp is 1
         }
-        if (dpStr.charAt(1) == '0') {
-            secondBit = !secondBit;
+        // Check if the second bit of dp is set (dp & 1), which corresponds to the first bit from the right in binary
+        if ((dp & 1) != 0) {
+            secondBit = !secondBit; // Complement if the first bit of dp is 1
         }
 
         bitArray.set(firstIndex, secondBit);
@@ -87,36 +95,22 @@ public class DataManipulation {
     }
 
 
-    /**
-     * Converts a boolean array into a BitSet
-     * @param bits Boolean array to convert.
-     * @param offset Array index to start reading from.
-     * @param length Number of bits to convert.
-     * @return bitset representation of the boolean[]
-     */
-    public static BitArray boolToBitSet(boolean[] bits, int offset, int length) {
-        BitArray bitset = new BitArray(length - offset);
-        for (int i = offset; i < length; i++)
-            bitset.set(i - offset, bits[i]);
-
-        return bitset;
-    }
-
-
     public static void main(String[] args) {
-        boolean[] boolArray = {false, false, true, false, true, false,
-                true, false, true, false, true, true};
 
-
-        BitArray bitArray = boolToBitSet(boolArray, 0, boolArray.length);
-
+        StringParser stringParser = new StringParser("hello");
+        BitArray bitArray = stringParser.convertToBitArray();
         DataManipulation dataManipulation = new DataManipulation(bitArray);
 
-        Chromosome chromosome = new Chromosome(4,4);
+        Chromosome chromosome = new Chromosome(0, 15, 8, 1, 3);
         BitArray modifiedArray = dataManipulation.modifyBitArray(chromosome);
+
+        DataManipulation dataManipulation1 = new DataManipulation(modifiedArray);
+        Chromosome chromosome1 = new Chromosome(0, 15, 8, 1, 3);
+        BitArray back = dataManipulation1.modifyBitArray(chromosome1);
 
         System.out.println("Original Array: " + bitArray);
         System.out.println("Modified Array: " + modifiedArray);
+        System.out.println("Modified Back Array: " + back);
     }
 
 }

@@ -136,5 +136,9 @@ public class SteganographyUI extends Application{
         secretMessageArea.clear(); // Clear the secret message area
         imageView.setImage(null); // Clear the image view
     }
+
+    public void setText(String decodedText) {
+        secretMessageArea.setText(decodedText);
+    }
 }
 

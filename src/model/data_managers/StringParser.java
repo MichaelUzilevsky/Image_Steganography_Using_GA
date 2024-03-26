@@ -2,6 +2,7 @@ package model.data_managers;
 
 
 import model.utils.ConstantsClass;
+import model.utils.UtilsMethods;
 
 public class StringParser {
     private final String text;
@@ -14,11 +15,13 @@ public class StringParser {
      * get the size of the bitarray, and round it to fit the pixels in the image;
      * @return the bitarray size
      */
-    private int getBitArraySize(){
-        int size = text.length() * ConstantsClass.BITS_PER_BYTE;
+    private int getBitArraySize() {
+/*
+        int size = 0;
         size += (size % ConstantsClass.ROUND_BITARRAY_TO == 0)?
-                0 : ConstantsClass.ROUND_BITARRAY_TO - size % ConstantsClass.ROUND_BITARRAY_TO;
-        return size;
+        0 : ConstantsClass.ROUND_BITARRAY_TO - size % ConstantsClass.ROUND_BITARRAY_TO;
+*/
+        return text.length() * ConstantsClass.BITS_PER_BYTE;
     }
 
     /**
@@ -33,7 +36,7 @@ public class StringParser {
         int bitIndex = 0;
         for (char c : text.toCharArray()) {
             int value = c;
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < ConstantsClass.BITS_PER_BYTE; i++) {
                 boolean bit = (value & 0x80) == 0x80; // Extract the most significant bit (MSB)
                 bits.set(bitIndex++, bit);
                 value <<= 1; // Left shift the value to get the next bit in the next iteration
@@ -43,8 +46,10 @@ public class StringParser {
     }
 
     public static void main(String[] args){
-        StringParser parser = new StringParser("hello");
-        System.out.println(parser.convertToBitArray());
+        StringParser parser = new StringParser("hellko");
+        BitArray bits = parser.convertToBitArray();
+        System.out.println(bits);
+        System.out.println(UtilsMethods.convertBitArrayToItsChars(bits));
 
     }
 }

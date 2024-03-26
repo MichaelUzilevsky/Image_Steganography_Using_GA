@@ -1,12 +1,9 @@
 package model.genetic_algorithm.selection;
 
 import model.genetic_algorithm.population_structure.Chromosome;
-import model.genetic_algorithm.population_structure.PopulationImplementation;
-
-import java.util.Collection;
-import java.util.List;
+import model.genetic_algorithm.population_structure.populations.PopulationImplementation;
 
 public interface SelectionStrategy {
-    Collection<Chromosome> selectNextGenerationForCrossover(PopulationImplementation currentGeneration);
-    List<Chromosome> selectNextGenerationUnchanged(PopulationImplementation currentGeneration);
+    Chromosome[] selectNextGenerationForCrossover(PopulationImplementation currentGeneration, int originalPopulationSize);
+    Chromosome[] selectNextGenerationElitism(PopulationImplementation currentGeneration);
 }

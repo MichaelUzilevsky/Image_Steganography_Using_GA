@@ -1,6 +1,6 @@
 package model.data_managers;
 
-import model.utils.BitsUtils;
+import model.utils.UtilsMethods;
 
 public class BitArray implements Cloneable{
     private byte[] bitArray;
@@ -87,6 +87,19 @@ public class BitArray implements Cloneable{
         return (bitArray[byteIndex] & (1 << bitIndex)) != 0;
     }
 
+    public BitArray get(int startingIndex, int length){
+        if (startingIndex < 0 || startingIndex >= size || startingIndex + length > size) {
+            throw new IndexOutOfBoundsException("Invalid starting index or length");
+        }
+
+        BitArray result = new BitArray(length);
+        for (int i = 0; i < length; i++) {
+            boolean bitValue = get(startingIndex + i);
+            result.set(i, bitValue);
+        }
+        return result;
+    }
+
     /**
      * Returns the size of the BitArray.
      *
@@ -154,7 +167,7 @@ public class BitArray implements Cloneable{
 
     public void modifyBitArrayByNumber(int number) {
         // Check if the number can fit in the BitArray
-        int bitsNeeded = BitsUtils.bitsNeeded(number);
+        int bitsNeeded = UtilsMethods.bitsNeeded(number);
         if (bitsNeeded > size) {
             throw new IllegalArgumentException("Number is too large to insert into this BitArray.");
         }

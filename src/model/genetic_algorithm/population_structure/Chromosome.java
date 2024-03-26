@@ -1,8 +1,8 @@
 package model.genetic_algorithm.population_structure;
 
 import model.data_managers.BitArray;
-import model.utils.BitsUtils;
 import model.utils.ConstantsClass;
+import model.utils.UtilsMethods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,19 +12,10 @@ import java.util.Random;
 /**
  * Represents a single chromosome in the genetic algorithm's population.
  * This chromosome contains five genes, with three having fixed sizes and the others calculated based on the image size.
- * <p>
- * The sizes for 'numberOfSwaps' and 'offset' are calculated as:
- * log2((width * height) / 2) bits, where width * height is the total pixel count in the image.
- * This represents the maximum number of bits for the text, divided by 2 due to changes in the bit array order.
  */
 public class Chromosome implements Comparable<Chromosome> {
     public static final Random random = new Random();
 
-    // fixed sizes of genes
-    public static final int POSSIBLE_COMBINATIONS_AMOUNT_FOR_FLEXIBLE_GENE = 24; // 4!
-    private static final int FLEXIBLE_GENE_SIZE = 5; // 4! = 24 -> 11000 MAX 5 BITS
-    private static final int DATA_DIRECTION_SIZE = 1; // 0 OR 1
-    private static final int DATA_POLARITY_SIZE = 2; // 00 01 10 11
     private static GeneSizeManager geneSizeManager;
     private final int[] genesStartingIndex;
     private final Genes[] genesOrder;
@@ -36,15 +27,13 @@ public class Chromosome implements Comparable<Chromosome> {
     /**
      * Initializes a new Chromosome instance for a given image size.
      *
-     * @param imageWidth  The width of the image.
-     * @param imageHeight The height of the image.
      */
-    public Chromosome(int imageWidth, int imageHeight) {
+    public Chromosome(int dataSizeInBits) {
 
-        int offsetSize, numberOfSwapsSize = offsetSize = calculateNSandOFFGenesSizes(imageHeight, imageWidth);
+        int offsetSize, numberOfSwapsSize = offsetSize = calculateNSandOFFGenesSizes(dataSizeInBits);
 
-        this.flexibleGene = new BitArray(FLEXIBLE_GENE_SIZE);
-        this.genes = new BitArray(DATA_DIRECTION_SIZE + DATA_POLARITY_SIZE + numberOfSwapsSize + offsetSize);
+        this.flexibleGene = new BitArray(ConstantsClass.FLEXIBLE_GENE_SIZE);
+        this.genes = new BitArray(ConstantsClass.DATA_DIRECTION_SIZE + ConstantsClass.DATA_POLARITY_SIZE + numberOfSwapsSize + offsetSize);
 
         setGeneSizeManager(numberOfSwapsSize, offsetSize);
 
@@ -68,17 +57,60 @@ public class Chromosome implements Comparable<Chromosome> {
         setIndexesForGenes(flexibleGene.toInt());
     }
 
-    private int calculateNSandOFFGenesSizes(int imageHeight, int imageWidth){
-        return BitsUtils.bitsNeeded((ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL *
-                imageHeight * imageWidth) / 2);
+    public Chromosome(int fc, int ns, int off, int dd, int dp) {
+        int offsetSize = UtilsMethods.bitsNeeded(off), numberOfSwapsSize = UtilsMethods.bitsNeeded(ns);
+
+        this.flexibleGene = new BitArray(ConstantsClass.FLEXIBLE_GENE_SIZE);
+        this.genes = new BitArray(ConstantsClass.DATA_DIRECTION_SIZE + ConstantsClass.DATA_POLARITY_SIZE + numberOfSwapsSize + offsetSize);
+
+        setGeneSizeManager(numberOfSwapsSize, offsetSize);
+
+        this.fitnessScore = -1;
+
+        genesOrder = new Genes[4];
+        genesStartingIndex = new int[4];
+
+        flexibleGene.modifyBitArrayByNumber(fc);
+        setIndexesForGenes(flexibleGene.toInt());
+
+        BitArray temp = new BitArray(UtilsMethods.bitsNeeded(ns));
+        temp.modifyBitArrayByNumber(ns);
+        setGene(Genes.NS, temp);
+
+        temp = new BitArray(UtilsMethods.bitsNeeded(off));
+        temp.modifyBitArrayByNumber(off);
+        setGene(Genes.OFF, temp);
+
+        temp = new BitArray(UtilsMethods.bitsNeeded(dd));
+        temp.modifyBitArrayByNumber(dd);
+        setGene(Genes.DD, temp);
+
+        temp = new BitArray(ConstantsClass.DATA_POLARITY_SIZE);
+        temp.modifyBitArrayByNumber(dp);
+        setGene(Genes.DP, temp);
+    }
+
+    public Chromosome(Chromosome other) {
+        this.flexibleGene = other.flexibleGene.clone();
+        this.genes = other.genes.clone();
+        this.fitnessScore = other.fitnessScore;
+
+        // Deep copy genesOrder and genesStartingIndex if necessary
+        this.genesOrder = Arrays.copyOf(other.genesOrder, other.genesOrder.length);
+        this.genesStartingIndex = Arrays.copyOf(other.genesStartingIndex, other.genesStartingIndex.length);
+
+    }
+
+    public static int calculateNSandOFFGenesSizes(int dataSizeInBits){
+        return UtilsMethods.bitsNeeded(UtilsMethods.numberOfSwapsForData(dataSizeInBits));
     }
 
     private void setGeneSizeManager(int numberOfSwapsSize, int offsetSize){
         geneSizeManager = new GeneSizeManager();
         geneSizeManager.setGeneSize(Genes.NS, numberOfSwapsSize);
         geneSizeManager.setGeneSize(Genes.OFF, offsetSize);
-        geneSizeManager.setGeneSize(Genes.DD, DATA_DIRECTION_SIZE);
-        geneSizeManager.setGeneSize(Genes.DP, DATA_POLARITY_SIZE);
+        geneSizeManager.setGeneSize(Genes.DD, ConstantsClass.DATA_DIRECTION_SIZE);
+        geneSizeManager.setGeneSize(Genes.DP, ConstantsClass.DATA_POLARITY_SIZE);
     }
 
     /**
@@ -189,6 +221,16 @@ public class Chromosome implements Comparable<Chromosome> {
         return geneVal;
     }
 
+    public void setGene(Genes gene, BitArray value) {
+        int indexInGeneArr = findIndexByGeneName(gene);
+        int startIndex = getGeneStartingIndex(gene);
+        int endIndex = (indexInGeneArr == genesOrder.length - 1) ? genes.size() : genesStartingIndex[indexInGeneArr + 1];
+        int index = 0;
+        for (int i = startIndex; i < endIndex; i++) {
+            genes.set(i, value.get(index++));
+        }
+    }
+
     private int getGeneStartingIndex(Genes gene){
         int indexInGeneArr = findIndexByGeneName(gene);
         return genesStartingIndex[indexInGeneArr];
@@ -219,16 +261,17 @@ public class Chromosome implements Comparable<Chromosome> {
 
     @Override
     public String toString() {
-        return "Flexible Gene: " + flexibleGene.toString() + "\n" +
-                "Number of Swaps Gene: " + getGene(Genes.NS).toString() + "\n" +
-                "Offset Gene: " + getGene(Genes.OFF).toString() + "\n" +
-                "Data Polarity Gene: " + getGene(Genes.DP).toString() + "\n" +
-                "Data Direction Gene: " + getGene(Genes.DD).toString() + "\n";
+//        return "Flexible Gene: " + flexibleGene.toString() + "\n" +
+//                "Number of Swaps Gene: " + getGene(Genes.NS).toString() + "\n" +
+//                "Offset Gene: " + getGene(Genes.OFF).toString() + "\n" +
+//                "Data Polarity Gene: " + getGene(Genes.DP).toString() + "\n" +
+//                "Data Direction Gene: " + getGene(Genes.DD).toString() + "\n" +
+              return   "Fitness: "+ getFitnessScore()+ "\n";
     }
 
     public static void main(String[] args) {
-        Chromosome c = new Chromosome(4, 4);
-        Chromosome c1 = new Chromosome(4, 4);
+        Chromosome c = new Chromosome(128);
+        Chromosome c1 = new Chromosome(128);
         System.out.println(c);
         System.out.println(c1);
         c.setIndexesForGenes(0);
