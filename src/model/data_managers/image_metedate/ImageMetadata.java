@@ -7,6 +7,11 @@ import model.utils.UtilsMethods;
 
 import java.util.*;
 
+/**
+ * Encapsulates metadata information about an image used for steganography. This
+ * includes details required for embedding data into the image, such as data length,
+ * number of swaps, offset, data direction, data polarity, and the image dimensions.
+ */
 public class ImageMetadata implements Iterable<Map.Entry<Integer, Integer>>{
     private final int dataLength;
     private final int numberOfSwaps;
@@ -17,6 +22,17 @@ public class ImageMetadata implements Iterable<Map.Entry<Integer, Integer>>{
     private final int imageHeight;
 
 
+    /**
+     * Constructs an ImageMetadata object with specified parameters.
+     *
+     * @param dataLength The length of the data to be embedded.
+     * @param numberOfSwaps The number of swaps to perform on the data.
+     * @param offset The offset for starting the swapping in the data array.
+     * @param dataDirection The direction for data manipulation (0 for left-to-right, 1 for right-to-left).
+     * @param dataPolarity The data polarity, determining bit complementing behavior.
+     * @param imageWidth The width of the image in pixels.
+     * @param imageHeight The height of the image in pixels.
+     */
     public ImageMetadata(int dataLength, int numberOfSwaps, int offset, int dataDirection, int dataPolarity, int imageWidth, int imageHeight) {
         this.dataLength = dataLength;
         this.numberOfSwaps = numberOfSwaps;
@@ -27,6 +43,14 @@ public class ImageMetadata implements Iterable<Map.Entry<Integer, Integer>>{
         this.imageHeight = imageHeight;
     }
 
+    /**
+     * Constructs an ImageMetadata object from a Chromosome and image dimensions.
+     *
+     * @param chromosome The Chromosome containing the genetic information for embedding.
+     * @param dataLength The length of the data to be embedded.
+     * @param imageWidth The width of the image in pixels.
+     * @param imageHeight The height of the image in pixels.
+     */
     public ImageMetadata(Chromosome chromosome, int dataLength, int imageWidth, int imageHeight  ){
         this.dataLength = dataLength;
 
@@ -68,7 +92,16 @@ public class ImageMetadata implements Iterable<Map.Entry<Integer, Integer>>{
         return imageHeight;
     }
 
-    // how many bits needed to store this number
+    /**
+     * Calculates the total number of bits required to store this metadata based on
+     * the image dimensions. This calculation is critical for both embedding and
+     * extracting processes to correctly allocate or retrieve the metadata from
+     * the steganographic image.
+     *
+     * @param imageWidth The width of the image in pixels.
+     * @param imageHeight The height of the image in pixels.
+     * @return The size of the metadata in bits.
+     */
     public static int getSizeInBits(int imageWidth, int imageHeight){
         return UtilsMethods.bitsNeeded(UtilsMethods.maxDataSizeNoHeaderInBits(imageWidth, imageHeight)) +
                 2 * UtilsMethods.bitsNeeded(UtilsMethods.maxNumberOfSwapsAndOffsetSize(imageWidth, imageHeight)) +
@@ -76,6 +109,11 @@ public class ImageMetadata implements Iterable<Map.Entry<Integer, Integer>>{
                 UtilsMethods.bitsNeeded(ConstantsClass.DATA_DIRECTION_SIZE);
     }
 
+    /**
+     * Calculates the total number of bits required to store this instance's metadata.
+     *
+     * @return The size of the metadata in bits.
+     */
     public int getSizeInBits(){
         return UtilsMethods.bitsNeeded(UtilsMethods.maxDataSizeNoHeaderInBits(imageWidth, imageHeight)) +
                 2 * UtilsMethods.bitsNeeded(UtilsMethods.maxNumberOfSwapsAndOffsetSize(imageWidth, imageHeight)) +
@@ -83,6 +121,13 @@ public class ImageMetadata implements Iterable<Map.Entry<Integer, Integer>>{
                 UtilsMethods.bitsNeeded(ConstantsClass.DATA_DIRECTION_SIZE);
     }
 
+    /**
+     * Provides an iterator over the metadata entries, facilitating the traversal
+     * and manipulation of the metadata parameters. Each entry maps a parameter value
+     * to its respective description or identifier.
+     *
+     * @return An iterator over the metadata entries.
+     */
     @Override
     public Iterator<Map.Entry<Integer, Integer>> iterator() {
         List<Map.Entry<Integer, Integer>> parameters = Arrays.asList(

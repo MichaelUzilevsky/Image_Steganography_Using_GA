@@ -9,7 +9,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implements a multipoint crossover strategy for genetic algorithms.
+ * In this strategy, genes are alternately selected from each parent to construct
+ * the offspring. This approach provides a more diversified genetic mix from both parents,
+ * potentially enhancing the genetic diversity of the population.
+ */
 public class MultiPointCrossover implements CrossoverStrategy{
+
+    /**
+     * Performs a crossover operation between two parent chromosomes using a multi-point
+     * crossover method. This method alternately selects genes from each parent, creating
+     * two new offspring with mixed genetic material from both parents.
+     *
+     * @param parent1 The first parent chromosome involved in the crossover.
+     * @param parent2 The second parent chromosome involved in the crossover.
+     * @return A list containing two offspring chromosomes, each constructed from an
+     *         alternating selection of genes from the parents.
+     */
     @Override
     public List<Chromosome> crossover(Chromosome parent1, Chromosome parent2) {
 
@@ -40,6 +57,15 @@ public class MultiPointCrossover implements CrossoverStrategy{
         return offsprings;
     }
 
+    /**
+     * Constructs a new offspring chromosome from a given set of genes. This method
+     * combines the genetic material from the provided genes map to form a complete
+     * chromosome structure, based on the gene order of the base parent chromosome.
+     *
+     * @param genes The map of genes (Gene type to BitArray) used to construct the offspring.
+     * @param baseParent The parent chromosome providing the base structure and gene order.
+     * @return A new Chromosome instance representing the offspring.
+     */
     private Chromosome constructOffspringFromGenes(Map<Genes, BitArray> genes, Chromosome baseParent) {
         BitArray combinedGenes = new BitArray(baseParent.getGenes().size());
         int index = 0;

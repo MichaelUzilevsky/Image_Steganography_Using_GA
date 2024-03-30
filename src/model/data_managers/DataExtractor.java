@@ -6,12 +6,32 @@ import model.data_managers.image_metedate.ImageMetadata;
 import model.data_managers.image_metedate.MetadataSerializer;
 import model.utils.ConstantsClass;
 
+/**
+ * Handles the extraction of embedded data and metadata from an image that has been
+ * used as a carrier in steganography. This class is capable of retrieving both
+ * the hidden data and the metadata required for correctly interpreting the data
+ * from an image's pixel values.
+ */
 public class DataExtractor {
     private final Image stegoImage;
 
+    /**
+     * Initializes a new DataExtractor with a specified steganographic image.
+     *
+     * @param stegoImage The image from which data and metadata are to be extracted.
+     */
     public DataExtractor(Image stegoImage) {
         this.stegoImage = stegoImage;
     }
+
+    /**
+     * Extracts bits from the image based on a specified number of bits.
+     * This method sequentially retrieves bits embedded in the least significant bits
+     * of the image's color components.
+     *
+     * @param totalBitsToExtract The total number of bits to be extracted from the image.
+     * @return A {@link BitArray} containing the extracted bits.
+     */
     private BitArray extractBitsFromImage(int totalBitsToExtract) {
         int width = (int) stegoImage.getWidth();
         int height = (int) stegoImage.getHeight();
@@ -39,17 +59,39 @@ public class DataExtractor {
         return extractedBits;
     }
 
-    // Extract and deserialize metadata
+    /**
+     * Extracts and deserializes the metadata from the image.
+     * The metadata size is determined based on the image dimensions and is
+     * used to extract the corresponding bits from the image, which are then
+     * deserialized to reconstruct the metadata.
+     *
+     * @return An {@link ImageMetadata} instance containing the extracted metadata.
+     */
     public ImageMetadata extractMetadata() {
         int metadataSize = calculateMetadataSize(); // Calculate the size of metadata based on image dimensions
         BitArray metadataBits = extractBitsFromImage(metadataSize);
         return MetadataSerializer.deserialize(metadataBits, (int) stegoImage.getWidth(), (int) stegoImage.getHeight());
     }
 
+    /**
+     * Calculates the size of the metadata based on the dimensions of the image.
+     *
+     * @return The size of the metadata in bits.
+     */
     private int calculateMetadataSize() {
         return ImageMetadata.getSizeInBits((int)stegoImage.getWidth(), (int)stegoImage.getHeight());
     }
 
+    /**
+     * Extracts the data portion from the image. This method calculates
+     * the total number of bits to extract, which includes the metadata size, padding,
+     * and the actual data length specified in the metadata. The method then retrieves
+     * the data bits, starting immediately after the metadata and its padding.
+     *
+     * @param metadata The {@link ImageMetadata} instance containing metadata
+     *                 information, such as the length of the data to be extracted.
+     * @return A {@link BitArray} containing the extracted data.
+     */
     public BitArray extractData(ImageMetadata metadata) {
         int metadataSizeWithPadding = calculateMetadataSize() +
                 (ConstantsClass.ROUND_BITARRAY_TO - (calculateMetadataSize() % ConstantsClass.ROUND_BITARRAY_TO)) %
@@ -71,6 +113,14 @@ public class DataExtractor {
         return dataBits;
     }
 
+    /**
+     * Calculates the total number of bits to extract from the steganographic image,
+     * which includes the metadata, padding, and the actual data length.
+     *
+     * @param metadata The {@link ImageMetadata} used to determine the data length.
+     * @return The total number of bits to extract, accounting for metadata, data,
+     *         and their respective padding.
+     */
     private int calculateTotalBitsToExtract(ImageMetadata metadata) {
 
         return calculateMetadataSize() +
@@ -80,5 +130,4 @@ public class DataExtractor {
                 (ConstantsClass.ROUND_BITARRAY_TO - (metadata.getDataLength() % ConstantsClass.ROUND_BITARRAY_TO)) %
                         ConstantsClass.ROUND_BITARRAY_TO;
     }
-
 }

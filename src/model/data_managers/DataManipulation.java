@@ -4,9 +4,22 @@ import model.genetic_algorithm.population_structure.Chromosome;
 import model.genetic_algorithm.population_structure.Genes;
 import model.utils.UtilsMethods;
 
+
+/**
+ * Facilitates the manipulation of data intended for steganography embedding
+ * within an image. This class provides methods for modifying a {@link BitArray}
+ * according to the specifications of a genetic algorithm chromosome. Modifications
+ * include swapping bits within the array and optionally complementing them to
+ * achieve a desired data arrangement for steganography.
+ */
 public class DataManipulation {
     private final BitArray data;
 
+    /**
+     * Constructs a DataManipulation instance with the provided data.
+     *
+     * @param data The {@link BitArray} to be manipulated.
+     */
     public DataManipulation(BitArray data){
         this.data = data;
     }
@@ -32,6 +45,16 @@ public class DataManipulation {
 
         return modifyBitArray(ns, off, dd, dp);
     }
+
+    /**
+     * Directly modifies the bit array based on provided parameters.
+     *
+     * @param ns The number of swaps to perform within the array.
+     * @param off The offset at which swapping begins in the second half of the array.
+     * @param dd The direction of data manipulation (0 for left-to-right, 1 for right-to-left).
+     * @param dp The data polarity determining how bits are complemented during swapping.
+     * @return A {@link BitArray} representing the modified data.
+     */
     public BitArray modifyBitArray(int ns, int off,  int dd,  int dp) {
 
         int len = data.size();
@@ -46,7 +69,6 @@ public class DataManipulation {
 
         return modifiedArray;
     }
-
 
     /**
      * Calculates the index in the second part of the bit array for swapping.
@@ -66,7 +88,6 @@ public class DataManipulation {
             return len - 1 - ((off + i) % mid);
         }
     }
-
 
     /**
      * Swaps two bits in the provided boolean array and optionally complements them based on the dp parameter.
@@ -94,7 +115,6 @@ public class DataManipulation {
         bitArray.set(secondIndex, firstBit);
     }
 
-
     public static void main(String[] args) {
 
         StringParser stringParser = new StringParser("hello");
@@ -112,5 +132,4 @@ public class DataManipulation {
         System.out.println("Modified Array: " + modifiedArray);
         System.out.println("Modified Back Array: " + back);
     }
-
 }

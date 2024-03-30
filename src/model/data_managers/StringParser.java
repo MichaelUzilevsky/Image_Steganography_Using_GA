@@ -1,26 +1,19 @@
 package model.data_managers;
-
-
 import model.utils.ConstantsClass;
 import model.utils.UtilsMethods;
 
 public class StringParser {
     private final String text;
+
     public StringParser(String text) {
         this.text = text;
     }
-
 
     /**
      * get the size of the bitarray, and round it to fit the pixels in the image;
      * @return the bitarray size
      */
     private int getBitArraySize() {
-/*
-        int size = 0;
-        size += (size % ConstantsClass.ROUND_BITARRAY_TO == 0)?
-        0 : ConstantsClass.ROUND_BITARRAY_TO - size % ConstantsClass.ROUND_BITARRAY_TO;
-*/
         return text.length() * ConstantsClass.BITS_PER_BYTE;
     }
 
@@ -46,7 +39,7 @@ public class StringParser {
     }
 
     public static void main(String[] args){
-        StringParser parser = new StringParser("hellko");
+        StringParser parser = new StringParser("hello");
         BitArray bits = parser.convertToBitArray();
         System.out.println(bits);
         System.out.println(UtilsMethods.convertBitArrayToItsChars(bits));

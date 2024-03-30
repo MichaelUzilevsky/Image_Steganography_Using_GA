@@ -7,7 +7,25 @@ import model.genetic_algorithm.population_structure.Genes;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Implements a crossover strategy that splits the chromosomes to its genes  and exchanges segments
+ * between two parent chromosomes to produce offspring. This strategy aims to combine genetic
+ * material from both parents while maintaining segments of individual genes, potentially
+ * preserving beneficial gene combinations.
+ */
 public class MultiPointCrossoverGeneSplit implements CrossoverStrategy{
+
+    /**
+     * Performs crossover on two parent chromosomes by splitting each gene at its midpoint
+     * and exchanging halves between the parents. This method considers the fitness scores of
+     * the parents to determine the stronger and weaker parent, ensuring that the stronger
+     * parent's genes are more likely to be passed on to the offspring.
+     *
+     * @param parent1 The first parent chromosome.
+     * @param parent2 The second parent chromosome.
+     * @return A list of offspring chromosomes resulting from the crossover.
+     */
     @Override
     public List<Chromosome> crossover(Chromosome parent1, Chromosome parent2) {
         Chromosome strong, weak;
@@ -47,6 +65,17 @@ public class MultiPointCrossoverGeneSplit implements CrossoverStrategy{
         offSprings.add(offSpring2);
         return offSprings;
     }
+
+    /**
+     * Splits each gene of the parent chromosomes at a midpoint, creating two new gene segments.
+     * These segments are then recombined to form genes for the offspring, with one offspring
+     * receiving the first halves from parent1 and second halves from parent2, and vice versa
+     * for the second offspring.
+     *
+     * @param parent1Gene The gene from the first parent.
+     * @param parent2Gene The gene from the second parent.
+     * @return A list containing two new BitArrays, each representing a gene for the offspring.
+     */
     private List<BitArray> splitGene(BitArray parent1Gene, BitArray parent2Gene){
         List<BitArray> mixedGenes = new ArrayList<>(2);
 

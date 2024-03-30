@@ -9,15 +9,15 @@ import model.data_managers.image_metedate.MetadataSerializer;
 import model.utils.ConstantsClass;
 
 /**
- * Manages the embedding of data into an image.
- * This class provides functionality to embed arbitrary data represented as a BitArray into an image,
- * by altering the least significant bits of the image pixels' color components.
+ * Manages the process of embedding data into an image. This class supports embedding arbitrary data,
+ * represented as a {@link BitArray}, into an image by subtly altering the least significant bits (LSBs)
+ * of the image pixels' color components, making the changes visually imperceptible.
  */
 public class DataEmbedding {
     private final Image originalImage;
 
     /**
-     * Constructs a new DataEmbedding instance for a given image.
+     * Initializes a new instance of DataEmbedding for a specific image.
      *
      * @param image The image into which data will be embedded.
      */
@@ -26,48 +26,15 @@ public class DataEmbedding {
     }
 
     /**
-     * Embeds the provided data into the image.
+     * Embeds the provided data and metadata into the original image.
+     * This method serializes the metadata, applies necessary padding, combines the metadata and data,
+     * and then embeds the combined BitArray into the original image's pixels. The embedding modifies the LSBs
+     * of each color component in each pixel to store the binary data, preserving the overall appearance of the image.
      *
-     * @param data The data to embed into the image, represented as a BitArray.
-     * @return A new Image with the data embedded.
+     * @param data The data to embed into the image, represented as a {@link BitArray}.
+     * @param metadata The metadata associated with the data, which is necessary for correctly extracting the data.
+     * @return A new {@link WritableImage} with the data and metadata embedded within it.
      */
-    public WritableImage embedDataNotUsed(BitArray data) {
-        int width = (int) originalImage.getWidth();
-        int height = (int) originalImage.getHeight();
-
-        WritableImage writableImage = new WritableImage(originalImage.getPixelReader(), width, height);
-        PixelWriter pixelWriter = writableImage.getPixelWriter();
-
-        // Calculate the number of pixels to embed data into
-        int pixelsToEmbed = data.size() / (ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL);
-
-        for(int pixelIndex = 0; pixelIndex < pixelsToEmbed; pixelIndex++) {
-            int dataIndex = pixelIndex * ConstantsClass.BITS_REPLACED_PER_BYTE * ConstantsClass.BYTES_IN_PIXEL;
-
-            int y = pixelIndex / width; // y-coordinate (rows)
-            int x = pixelIndex % width; // x-coordinate (columns)
-
-
-            if (x < width && y < height) {
-                int redData = (data.get(dataIndex) ? 1 : 0) | (data.get(dataIndex + 1) ? 2 : 0);
-                int greenData = (data.get(dataIndex + 2) ? 1 : 0) | (data.get(dataIndex + 3) ? 2 : 0);
-                int blueData = (data.get(dataIndex + 4) ? 1 : 0) | (data.get(dataIndex + 5) ? 2 : 0);
-
-                Color color = originalImage.getPixelReader().getColor(x, y);
-
-                // Embedding data into the color components
-                int red = ((int) (color.getRed() * 255) & 0xFC) | redData;
-                int green = ((int) (color.getGreen() * 255) & 0xFC) | greenData;
-                int blue = ((int) (color.getBlue() * 255) & 0xFC) | blueData;
-
-                Color newColor = Color.rgb(red, green, blue, 1.0);
-                pixelWriter.setColor(x, y, newColor);
-            }
-        }
-
-        return writableImage;
-    }
-
     public WritableImage embedData(BitArray data,  ImageMetadata metadata) {
         // Serialize metadata to BitArray
         BitArray metadataBitArray = MetadataSerializer.serialize(metadata);
@@ -97,6 +64,7 @@ public class DataEmbedding {
 
         int width = (int) originalImage.getWidth();
         int height = (int) originalImage.getHeight();
+
         WritableImage writableImage = new WritableImage(originalImage.getPixelReader(), width, height);
         PixelWriter pixelWriter = writableImage.getPixelWriter();
 

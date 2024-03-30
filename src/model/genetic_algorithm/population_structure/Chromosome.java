@@ -11,7 +11,9 @@ import java.util.Random;
 
 /**
  * Represents a single chromosome in the genetic algorithm's population.
- * This chromosome contains five genes, with three having fixed sizes and the others calculated based on the image size.
+ * A chromosome encapsulates the parameters (genes) that define a solution within the genetic algorithm's search space.
+ * Each gene represents a specific characteristic of the solution, such as the number of swaps, offset, data direction, and data polarity.
+ * The fitness score of the chromosome is a measure of how good the solution it represents is.
  */
 public class Chromosome implements Comparable<Chromosome> {
     public static final Random random = new Random();
@@ -25,8 +27,9 @@ public class Chromosome implements Comparable<Chromosome> {
 
 
     /**
-     * Initializes a new Chromosome instance for a given image size.
+     * Constructs a Chromosome with a specified data size in bits. This constructor initializes the chromosome with random gene values.
      *
+     * @param dataSizeInBits The size of the data, in bits, that this chromosome's genes will operate on.
      */
     public Chromosome(int dataSizeInBits) {
 
@@ -45,6 +48,14 @@ public class Chromosome implements Comparable<Chromosome> {
         initiateChromosome();
     }
 
+    /**
+     * Constructs a Chromosome with specified genes and sizes. This constructor is used for creating a new chromosome from specific genes.
+     *
+     * @param flexibleGene      The gene representing the flexible order of operations.
+     * @param genes             The BitArray representing all the genes except for the flexible gene.
+     * @param numberOfSwapsSize The size of the number of swaps gene.
+     * @param offsetSize        The size of the offset gene.
+     */
     public Chromosome(BitArray flexibleGene, BitArray genes, int numberOfSwapsSize, int offsetSize){
         this.genes = genes;
         this.flexibleGene = flexibleGene;
@@ -57,6 +68,15 @@ public class Chromosome implements Comparable<Chromosome> {
         setIndexesForGenes(flexibleGene.toInt());
     }
 
+    /**
+     * Constructor for creating a chromosome with predefined genes.
+     *
+     * @param fc Flexible gene value
+     * @param ns Number of swaps gene value
+     * @param off Offset gene value
+     * @param dd Data direction gene value
+     * @param dp Data polarity gene value
+     */
     public Chromosome(int fc, int ns, int off, int dd, int dp) {
         int offsetSize = UtilsMethods.bitsNeeded(off), numberOfSwapsSize = UtilsMethods.bitsNeeded(ns);
 
@@ -90,6 +110,11 @@ public class Chromosome implements Comparable<Chromosome> {
         setGene(Genes.DP, temp);
     }
 
+    /**
+     * Copy constructor. Creates a deep copy of another Chromosome.
+     *
+     * @param other The Chromosome to copy.
+     */
     public Chromosome(Chromosome other) {
         this.flexibleGene = other.flexibleGene.clone();
         this.genes = other.genes.clone();
@@ -101,10 +126,22 @@ public class Chromosome implements Comparable<Chromosome> {
 
     }
 
+    /**
+     * Calculates the sizes of the number of swaps and offset genes based on the image size.
+     *
+     * @param dataSizeInBits Size of the image in bits
+     * @return Total size required for the number of swaps and offset genes
+     */
     public static int calculateNSandOFFGenesSizes(int dataSizeInBits){
         return UtilsMethods.bitsNeeded(UtilsMethods.numberOfSwapsForData(dataSizeInBits));
     }
 
+    /**
+     * Sets the gene size manager with the sizes of number of swaps and offset genes.
+     *
+     * @param numberOfSwapsSize Size of the number of swaps gene
+     * @param offsetSize Size of the offset gene
+     */
     private void setGeneSizeManager(int numberOfSwapsSize, int offsetSize){
         geneSizeManager = new GeneSizeManager();
         geneSizeManager.setGeneSize(Genes.NS, numberOfSwapsSize);
@@ -150,7 +187,7 @@ public class Chromosome implements Comparable<Chromosome> {
      * @param geneSize the size of this gene.
      */
     private void mutateGene(int start, int geneSize) {
-        double mutationProbability = 1.0 / geneSize;
+        double mutationProbability = 0.5;
         for (int i = 0; i < geneSize; i++) {
             if (random.nextDouble() <= mutationProbability)
                 genes.flip(start + i);
@@ -183,6 +220,11 @@ public class Chromosome implements Comparable<Chromosome> {
         flexibleGene.modifyBitArrayByNumber(flexibleGeneValue);
     }
 
+    /**
+     * Sets starting indexes for each gene based on the order of genes.
+     *
+     * @param genesArr Order of genes
+     */
     private void setIndexes(Genes[] genesArr) {
         genesStartingIndex[0] = 0;
         int index = 1;
@@ -193,14 +235,30 @@ public class Chromosome implements Comparable<Chromosome> {
         }
     }
 
+    /**
+     * Retrieves the fitness score of the chromosome.
+     *
+     * @return Fitness score of the chromosome
+     */
     public double getFitnessScore() {
         return fitnessScore;
     }
 
+    /**
+     * Sets the fitness score of the chromosome.
+     *
+     * @param fitnessScore Fitness score of the chromosome
+     */
     public void setFitnessScore(double fitnessScore) {
         this.fitnessScore = fitnessScore;
     }
 
+    /**
+     * Finds the index of a gene in the order of genes.
+     *
+     * @param gene Gene to find the index of
+     * @return Index of the gene, -1 if not found
+     */
     private int findIndexByGeneName(Genes gene) {
         for (int i = 0; i < genesOrder.length; i++){
             if(gene.equals(genesOrder[i]))
@@ -209,6 +267,12 @@ public class Chromosome implements Comparable<Chromosome> {
         return -1;
     }
 
+    /**
+     * Retrieves a specific gene from the chromosome.
+     *
+     * @param gene Gene to retrieve
+     * @return Gene value as a BitArray
+     */
     public BitArray getGene(Genes gene) {
         int indexInGeneArr = findIndexByGeneName(gene);
         int startIndex = getGeneStartingIndex(gene);
@@ -221,6 +285,12 @@ public class Chromosome implements Comparable<Chromosome> {
         return geneVal;
     }
 
+    /**
+     * Sets a specific gene in the chromosome.
+     *
+     * @param gene Gene to set
+     * @param value Value to set the gene to
+     */
     public void setGene(Genes gene, BitArray value) {
         int indexInGeneArr = findIndexByGeneName(gene);
         int startIndex = getGeneStartingIndex(gene);
@@ -231,19 +301,40 @@ public class Chromosome implements Comparable<Chromosome> {
         }
     }
 
+    /**
+     * Retrieves the starting index of a gene.
+     *
+     * @param gene Gene to retrieve the starting index for
+     * @return Starting index of the gene
+     */
     private int getGeneStartingIndex(Genes gene){
         int indexInGeneArr = findIndexByGeneName(gene);
         return genesStartingIndex[indexInGeneArr];
     }
 
+    /**
+     * Retrieves the flexible gene.
+     *
+     * @return Flexible gene as a BitArray
+     */
     public BitArray getFlexibleGene() {
         return flexibleGene;
     }
 
+    /**
+     * Retrieves the chromosome genes.
+     *
+     * @return Chromosome genes as a BitArray
+     */
     public BitArray getGenes() {
         return genes;
     }
 
+    /**
+     * Retrieves the order of genes in the chromosome.
+     *
+     * @return Order of genes as an array of Genes
+     */
     public Genes[] getGenesOrder(){
         return this.genesOrder;
     }
@@ -259,6 +350,11 @@ public class Chromosome implements Comparable<Chromosome> {
         return Double.compare(this.fitnessScore, chromosome.fitnessScore);
     }
 
+    /**
+     * Returns a string representation of the chromosome.
+     *
+     * @return String representation of the chromosome
+     */
     @Override
     public String toString() {
 //        return "Flexible Gene: " + flexibleGene.toString() + "\n" +

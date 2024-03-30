@@ -16,6 +16,10 @@ import javafx.stage.Stage;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * A user interface for a steganography application developed with JavaFX.
+ * This interface allows users to encode and decode secret messages within images.
+ */
 public class SteganographyUI extends Application{
     private TextArea secretMessageArea;
     private ImageView imageView;
@@ -24,6 +28,11 @@ public class SteganographyUI extends Application{
     private Consumer<ActionEvent> onLoadImageAction;
     private Stage primaryStage;
 
+    /**
+     * Starts and displays the steganography application window.
+     *
+     * @param stage The primary stage for this application, onto which the application scene can be set.
+     */
     @Override
     public void start(Stage stage) {
 
@@ -56,6 +65,15 @@ public class SteganographyUI extends Application{
         stage.setScene(scene);
         stage.show();
     }
+
+    /**
+     * Sets up the layout for the application, including the arrangement of UI components.
+     *
+     * @param layout The layout container for UI components.
+     * @param loadImageButton The button for loading an image.
+     * @param encodeButton The button for encoding a message.
+     * @param decodeButton The button for decoding a message.
+     */
     private void setUpLayout(VBox layout, Button loadImageButton, Button encodeButton, Button decodeButton) {
         // Configure and add components to layout
         secretMessageArea.setPromptText("Secret Message");
@@ -82,6 +100,13 @@ public class SteganographyUI extends Application{
         layout.getChildren().addAll(imageView, loadImageButton, secretMessageArea, buttonBox);
     }
 
+    /**
+     * Attaches event handlers to buttons for loading, encoding, and decoding actions.
+     *
+     * @param loadImageButton The button for loading an image.
+     * @param encodeButton The button for encoding a message.
+     * @param decodeButton The button for decoding a message.
+     */
     private void attachEventHandlers(Button loadImageButton, Button encodeButton, Button decodeButton) {
         loadImageButton.setOnAction(event -> {
             if (onLoadImageAction != null) {
@@ -141,4 +166,3 @@ public class SteganographyUI extends Application{
         secretMessageArea.setText(decodedText);
     }
 }
-

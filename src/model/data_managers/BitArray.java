@@ -1,33 +1,40 @@
 package model.data_managers;
 
+import model.utils.ConstantsClass;
 import model.utils.UtilsMethods;
 
+/**
+ * Represents a binary array where each element can be either 0 or 1.
+ * This class provides methods to manipulate bits within a byte array,
+ * allowing for efficient storage and manipulation of binary data.
+ */
 public class BitArray implements Cloneable{
     private byte[] bitArray;
     private final int size;
 
     /**
-     * Constructs a BitArray.
+     * Initializes a new BitArray of the specified size.
      *
-     * @param size The number of bits in the BitArray.
+     * @param size The size of the BitArray in bits.
      */
     public BitArray(int size) {
         this.size = size;
-        this.bitArray = new byte[(size + 8) / 8]; // Each byte stores 8 bits
+        this.bitArray = new byte[(size + ConstantsClass.BITS_PER_BYTE) / ConstantsClass.BITS_PER_BYTE];
     }
 
     /**
-     * Sets the bit at the specified index.
+     * Sets the value of the bit at a specified index.
      *
-     * @param index The index of the bit.
-     * @param value The value to set (true for 1, false for 0).
+     * @param index The index of the bit to set.
+     * @param value The new value of the bit (true for 1, false for 0).
+     * @throws IndexOutOfBoundsException if the index is out of bounds.
      */
     public void set(int index, boolean value) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
         }
-        int byteIndex = index / 8;
-        int bitIndex = index % 8;
+        int byteIndex = index / ConstantsClass.BITS_PER_BYTE;
+        int bitIndex = index % ConstantsClass.BITS_PER_BYTE;
         if (value) {
             bitArray[byteIndex] |= (byte) (1 << bitIndex); // Set the bit to 1
         } else {
@@ -36,12 +43,12 @@ public class BitArray implements Cloneable{
     }
 
     /**
-     * Sets the bits at the specified indexes from start index to start index + n -1.
-     * n buts will be set.
+     * Sets a range of bits to the specified value starting from a given index.
      *
-     * @param startIndex The index of the bit.
-     * @param n the number of the bits forward to set
-     * @param value The value to set (true for 1, false for 0).
+     * @param startIndex The starting index where bits should be set.
+     * @param n The number of bits to set.
+     * @param value The value to set for the specified range of bits (true for 1, false for 0).
+     * @throws IndexOutOfBoundsException if the range specified is out of bounds.
      */
     public void set(int startIndex, int n, boolean value) {
         if (startIndex < 0 || startIndex >= size || startIndex + n - 1 >= size) {
@@ -50,8 +57,8 @@ public class BitArray implements Cloneable{
         int byteIndex,  bitIndex;
 
         for (int i = startIndex; i < startIndex + n; i++) {
-             byteIndex = i / 8;
-             bitIndex = i % 8;
+             byteIndex = i / ConstantsClass.BITS_PER_BYTE;
+             bitIndex = i % ConstantsClass.BITS_PER_BYTE;
             if (value) {
                 bitArray[byteIndex] |= (byte) (1 << bitIndex); // Set the bit to 1
             } else {
@@ -61,6 +68,13 @@ public class BitArray implements Cloneable{
 
     }
 
+    /**
+     * Sets a sequence of bits starting from a specified index using the values from another BitArray.
+     *
+     * @param startIndex The starting index in this BitArray.
+     * @param values The BitArray containing the values to be copied.
+     * @throws IndexOutOfBoundsException if copying would result in access of data outside array bounds.
+     */
     public void set(int startIndex, BitArray values){
         if(startIndex + values.size > size)
             throw new IndexOutOfBoundsException("Index out of bounds: " + (startIndex + values.size()) + "\nThe BitArray size is: " + size);
@@ -73,20 +87,29 @@ public class BitArray implements Cloneable{
 
 
     /**
-     * Gets the value of the bit at the specified index.
+     * Gets the value of a bit at a specified index.
      *
-     * @param index The index of the bit.
-     * @return The value of the bit (true for 1, false for 0).
+     * @param index The index of the bit to get.
+     * @return The value of the bit at the specified index (true for 1, false for 0).
+     * @throws IndexOutOfBoundsException if the index is out of bounds.
      */
     public boolean get(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
         }
-        int byteIndex = index / 8;
-        int bitIndex = index % 8;
+        int byteIndex = index / ConstantsClass.BITS_PER_BYTE;
+        int bitIndex = index % ConstantsClass.BITS_PER_BYTE;
         return (bitArray[byteIndex] & (1 << bitIndex)) != 0;
     }
 
+    /**
+     * Extracts a sequence of bits as a new BitArray.
+     *
+     * @param startingIndex The starting index of the sequence to extract.
+     * @param length The number of bits in the sequence.
+     * @return A new BitArray containing the specified sequence of bits.
+     * @throws IndexOutOfBoundsException if the specified range is out of bounds.
+     */
     public BitArray get(int startingIndex, int length){
         if (startingIndex < 0 || startingIndex >= size || startingIndex + length > size) {
             throw new IndexOutOfBoundsException("Invalid starting index or length");
@@ -110,14 +133,15 @@ public class BitArray implements Cloneable{
     }
 
     /**
-     * string representation of the bitarray
-     * @return str representing the bitarray
+     * Provides a string representation of the BitArray.
+     *
+     * @return A string showing the binary representation of the BitArray.
      */
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < size; i++) {
-            if(i != 0 && i % 8 == 0)
+            if(i != 0 && i % ConstantsClass.BITS_PER_BYTE == 0)
                 str.append(" ");
            str.append(get(i)? "1": "0");
         }
@@ -125,12 +149,9 @@ public class BitArray implements Cloneable{
     }
 
     /**
-     * Creates and returns a copy (clone) of this BitArray.
-     *<p></p>
-     * The clone is a deep copy, meaning that it contains a copy of the internal
-     * bit storage and modifications to the clone will not affect the original BitArray.
+     * Creates and returns a copy of this BitArray.
      *
-     * @return A clone of this BitArray.
+     * @return A clone of this BitArray instance.
      */
     @Override
     public BitArray clone() {
@@ -144,17 +165,18 @@ public class BitArray implements Cloneable{
     }
 
     /**
-     * flips the bit at the specific index
-     * @param index index in the bitArray
+     * Flips the value of the bit at the specified index (0 becomes 1, and 1 becomes 0).
+     *
+     * @param index The index of the bit to flip.
      */
     public void flip(int index) {
         set(index, !get(index));
     }
 
     /**
-     * return the int representation of the bitArray
-     * 1100 -> 12
-     * @return the integer value of the bitArray
+     * Converts the BitArray to an integer value.
+     *
+     * @return The integer value represented by the BitArray.
      */
     public int toInt() {
         int sum = 0, base = 1;
@@ -165,6 +187,12 @@ public class BitArray implements Cloneable{
         return sum;
     }
 
+    /**
+     * Modifies the BitArray based on the integer value provided.
+     *
+     * @param number The integer value to set the BitArray to represent.
+     * @throws IllegalArgumentException if the number cannot be represented by the size of the BitArray.
+     */
     public void modifyBitArrayByNumber(int number) {
         // Check if the number can fit in the BitArray
         int bitsNeeded = UtilsMethods.bitsNeeded(number);
@@ -194,4 +222,3 @@ public class BitArray implements Cloneable{
         System.out.println(bitArray1);
     }
 }
-

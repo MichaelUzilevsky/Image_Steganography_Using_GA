@@ -20,14 +20,26 @@ import javax.imageio.ImageIO;
 import javafx.scene.control.Alert.AlertType;
 import java.io.File;
 
+/**
+ * Controls interactions between the view and the model in the Steganography application.
+ * This controller handles actions for encoding, decoding, and loading images.
+ */
 public class SteganographyController {
     private final SteganographyUI view;
 
+    /**
+     * Initializes the controller with the application's UI view.
+     *
+     * @param view The SteganographyUI view instance.
+     */
     public SteganographyController(SteganographyUI view) {
         this.view = view;
         attachActionHandlers();
     }
 
+    /**
+     * Attaches event handlers to UI elements for encoding, decoding, and image loading.
+     */
     public void attachActionHandlers() {
 
         // Set the action to be performed when the encode button is pressed.
@@ -40,20 +52,25 @@ public class SteganographyController {
         view.setOnLoadImageAction(event -> loadImageAction());
     }
 
+    /**
+     * Encodes a secret message into an image using a genetic algorithm.
+     * This method also initializes and updates the dynamic graph with the fitness score of the best chromosome.
+     */
     private void encodeAction() {
         // Get the secret message from the view.
         String secretMessage = view.getSecretMessage();
 
+        if(nullImage()){
+            loadAlertMessage("Image is not included", "please add image to proceed");
+            return;
+        }
+
         if (!testMessageSize(secretMessage)){
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Message Size Too Large");
-            alert.setContentText("The secret message is too large to be encoded in the selected image." +
+            loadAlertMessage("Message Size Too Large",
+                    "The secret message is too large to be encoded in the selected image." +
                     "\nThe max size for this image is: " +
                     UtilsMethods.secretMessageMaxLength((int)view.getImage().getWidth(),
-                    (int)view.getImage().getHeight())+ " chars");
-
-            alert.showAndWait();
+                                                        (int)view.getImage().getHeight())+ " chars");
             return;
         }
 
@@ -75,8 +92,15 @@ public class SteganographyController {
         
     }
 
-
+    /**
+     * Decodes a secret message from an image. This involves extracting embedded data,
+     * reversing any manipulations, and converting the bit array back to text.
+     */
     private void decodeAction() {
+        if(nullImage()){
+            loadAlertMessage("Image is not included", "please add image to proceed");
+            return;
+        }
 
         Image stegoImage = view.getImage();
 
@@ -99,6 +123,10 @@ public class SteganographyController {
         String decodedText = UtilsMethods.convertBitArrayToItsChars(originalMessage);
         view.setText(decodedText);
     }
+
+    /**
+     * Allows the user to select an image file to load into the application.
+     */
     private void loadImageAction() {
         FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(view.getPrimaryStage());
@@ -109,6 +137,11 @@ public class SteganographyController {
         }
     }
 
+    /**
+     * Saves the encoded image to a file chosen by the user.
+     *
+     * @param image The image to be saved.
+     */
     private void saveImageToFile(Image image) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Encoded Image");
@@ -146,11 +179,46 @@ public class SteganographyController {
         }
     }
 
+    /**
+     * Checks if the secret message size is appropriate for the loaded image.
+     *
+     * @param message The secret message to encode.
+     * @return true if the message can be encoded in the image, false otherwise.
+     */
     private boolean testMessageSize(String message) {
         return message.length() <= UtilsMethods.secretMessageMaxLength((int)view.getImage().getWidth(),
                                                                         (int)view.getImage().getHeight());
     }
 
+    /**
+     * Checks if an image has been loaded into the application.
+     *
+     * @return true if an image is loaded, false otherwise.
+     */
+    private boolean nullImage(){
+        return view.getImage() == null;
+    }
+
+    /**
+     * Displays an alert message to the user.
+     *
+     * @param headerText The header text of the alert.
+     * @param contentText The content text of the alert.
+     */
+    private void loadAlertMessage(String headerText, String contentText){
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.showAndWait();
+    }
+
+    /**
+     * Adjusts the data polarity (dp) parameter for the reverse operation during decoding.
+     *
+     * @param dp The data polarity parameter to be adjusted.
+     * @return The adjusted data polarity parameter.
+     */
     private int adjustDpForReversal(int dp) {
         // If dp is 1 or 2, subtract it by 3 to reverse the complementing operation
         if (dp == 1 || dp == 2) {
