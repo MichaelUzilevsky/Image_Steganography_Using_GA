@@ -12,15 +12,17 @@ import java.util.Map;
 /**
  * Implements a multipoint crossover strategy for genetic algorithms.
  * In this strategy, genes are alternately selected from each parent to construct
- * the offspring. This approach provides a more diversified genetic mix from both parents,
+ * the offspring,where genes are alternately selected from each parent to construct the offspring.
+ * This approach provides a more diversified genetic mix from both parents,
  * potentially enhancing the genetic diversity of the population.
  */
 public class MultiPointCrossover implements CrossoverStrategy{
 
     /**
-     * Performs a crossover operation between two parent chromosomes using a multi-point
-     * crossover method. This method alternately selects genes from each parent, creating
-     * two new offspring with mixed genetic material from both parents.
+     * This method performs a crossover between two parent chromosomes by alternately selecting genes from each parent
+     * to form two new offspring.
+     * This method aims to mix the genetic material from both parents,
+     * enhancing the potential for beneficial genetic combinations in the offspring.
      *
      * @param parent1 The first parent chromosome involved in the crossover.
      * @param parent2 The second parent chromosome involved in the crossover.
@@ -61,6 +63,10 @@ public class MultiPointCrossover implements CrossoverStrategy{
      * Constructs a new offspring chromosome from a given set of genes. This method
      * combines the genetic material from the provided genes map to form a complete
      * chromosome structure, based on the gene order of the base parent chromosome.
+     * This method constructs a new offspring chromosome
+     * by combining genes according to the gene order specified in the base parent chromosome.
+     * This structured approach ensures that the genetic material is correctly
+     * organized according to the established gene order.
      *
      * @param genes The map of genes (Gene type to BitArray) used to construct the offspring.
      * @param baseParent The parent chromosome providing the base structure and gene order.

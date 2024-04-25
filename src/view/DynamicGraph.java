@@ -12,10 +12,10 @@ import javafx.stage.Stage;
  * in a genetic algorithm. This class uses JavaFX to create a real-time updated line chart.
  */
 public class DynamicGraph {
-    private static final XYChart.Series<Number, Number> series = new XYChart.Series<>();
-    private static final NumberAxis xAxis = new NumberAxis();
-    private static final NumberAxis yAxis = new NumberAxis();
-    private static final Stage stage = new Stage();
+    private static XYChart.Series<Number, Number> series;
+    private static NumberAxis xAxis;
+    private static NumberAxis yAxis;
+    private static Stage stage;
 
     /**
      * Manages a dynamic graph visualization for displaying fitness scores over generations
@@ -24,6 +24,11 @@ public class DynamicGraph {
     public static void initialize() {
         Platform.runLater(() -> {
             try {
+                stage = new Stage();  // Create a new Stage each time
+                xAxis = new NumberAxis();
+                yAxis = new NumberAxis();
+                series = new XYChart.Series<>();
+
                 xAxis.setLabel("Generation");
                 yAxis.setLabel("Fitness Score");
 
@@ -75,7 +80,20 @@ public class DynamicGraph {
 
         // Apply the adjusted bounds to the axes
         xAxis.setUpperBound(maxX + 1);
+        xAxis.setLowerBound(1);
         yAxis.setLowerBound(minY - paddingY);
         yAxis.setUpperBound(maxY + paddingY);
+    }
+
+    /**
+     * Closes the graph window.
+     */
+    public static void closeGraph() {
+        Platform.runLater(() -> {
+            if (stage != null) {
+                stage.close();
+                stage = null; // Ensure the old stage is discarded
+            }
+        });
     }
 }

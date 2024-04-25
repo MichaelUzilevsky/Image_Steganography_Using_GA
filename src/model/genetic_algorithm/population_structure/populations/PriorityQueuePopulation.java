@@ -79,6 +79,9 @@ public class PriorityQueuePopulation implements PopulationImplementation {
 
     /**
      * Selects and returns a random chromosome from the population.
+     * This method is essential for introducing randomness into the genetic operations,
+     * such as in some crossover and mutation techniques,
+     * where random chromosomes need to be selected for genetic diversity.
      *
      * @return A randomly selected chromosome.
      */
@@ -126,8 +129,11 @@ public class PriorityQueuePopulation implements PopulationImplementation {
     }
 
     /**
-     * Inserts a new chromosome into the population. If the population is at capacity, it may replace
-     * a less fit chromosome based on the priority queue's ordering.
+     * Adds a new chromosome to the population.
+     * This method is critical for maintaining the population size after genetic operations
+     * like crossover and mutation have been applied.
+     * It ensures that all chromosomes are kept sorted according to their fitness scores,
+     * thanks to the underlying priority queue mechanism.
      *
      * @param chromosome The Chromosome to be inserted.
      */

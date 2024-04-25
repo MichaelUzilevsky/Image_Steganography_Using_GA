@@ -61,7 +61,12 @@ public class SteganographyController {
         String secretMessage = view.getSecretMessage();
 
         if(nullImage()){
-            loadAlertMessage("Image is not included", "please add image to proceed");
+            loadAlertMessage("Image is not included", "please add an image to proceed");
+            return;
+        }
+
+        if(secretMessage.isEmpty()){
+            loadAlertMessage("Message is not included", "please add a Message to proceed");
             return;
         }
 
@@ -87,6 +92,7 @@ public class SteganographyController {
             Platform.runLater(() -> {
                 saveImageToFile(modifiedImage);
                 view.clearView();
+                DynamicGraph.closeGraph();
             });
         }).start();
         
@@ -109,6 +115,12 @@ public class SteganographyController {
         ImageMetadata extracted = dataExtractor.extractMetadata();
 
         BitArray extractData = dataExtractor.extractData(extracted);
+
+        if (extractData == null){
+            loadAlertMessage("Image was not encoded by this algorithm", "Please try other image");
+            view.clearView();
+            return;
+        }
 
         DataManipulation dataManipulation = new DataManipulation(extractData);
 

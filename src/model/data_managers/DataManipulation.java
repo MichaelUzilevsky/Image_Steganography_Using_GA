@@ -13,7 +13,7 @@ import model.utils.UtilsMethods;
  * achieve a desired data arrangement for steganography.
  */
 public class DataManipulation {
-    private final BitArray data;
+    private final BitArray data; // the data before the manipulation
 
     /**
      * Constructs a DataManipulation instance with the provided data.
@@ -25,15 +25,18 @@ public class DataManipulation {
     }
 
     /**
-     * Modifies a bit array based on the given parameters of a steganography algorithm.
-     * It performs swapping and optional complementing of bits within the array.
+     * This method orchestrates the manipulation of a BitArray based on the chromosome’s defined genes.
+     * It performs the manipulation by determining the
+     *                                                  number of swaps,
+     *                                                  the offset for swapping,
+     *                                                  the direction of data manipulation,
+     *                                                  and how the bits are complemented (data polarity).
+     * The method then calls another function to execute the manipulation with these parameters.
      *
-     * @param chromosome representing the chromosome, witch based on his genes the data will change.
-     * ns        Number of swaps to perform.
-     * off       Offset for starting the swapping in the second part of the array.
-     * dd        Data direction (0 for left-to-right, 1 for right-to-left in the second part).
-     * dp        Data polarity (00, 01, 10, 11) determining the complementing behavior.
-     * @return          The modified boolean array representing rearranged secret data.
+     * @param chromosome A Chromosome object representing the genetic sequence that dictates how the data manipulation
+     *                   should be carried out.
+     * @return A BitArray representing the data after it has been rearranged according to the chromosome's
+     *         genetic instructions.
      */
     public BitArray modifyBitArray(Chromosome chromosome) {
 
@@ -47,13 +50,16 @@ public class DataManipulation {
     }
 
     /**
-     * Directly modifies the bit array based on provided parameters.
+     * This function modifies the BitArray by swapping bits within the array.
+     * Swaps are made between two segments of the array, and the bits may be complemented depending on the dp value.
+     * This approach is used to rearrange the data in a manner that may enhance its steganographic concealment within
+     * an image.
      *
      * @param ns The number of swaps to perform within the array.
      * @param off The offset at which swapping begins in the second half of the array.
      * @param dd The direction of data manipulation (0 for left-to-right, 1 for right-to-left).
      * @param dp The data polarity determining how bits are complemented during swapping.
-     * @return A {@link BitArray} representing the modified data.
+     * @return A {@link BitArray} that has been rearranged according to the specified manipulation parameters.
      */
     public BitArray modifyBitArray(int ns, int off,  int dd,  int dp) {
 
@@ -90,7 +96,9 @@ public class DataManipulation {
     }
 
     /**
-     * Swaps two bits in the provided boolean array and optionally complements them based on the dp parameter.
+     * Swaps two specified bits in a BitArray and optionally complements them based on the data polarity parameter.
+     * This function is a key component of the data manipulation process,
+     * ensuring that the bits are correctly rearranged and potentially obfuscated for steganographic purposes.
      *
      * @param bitArray     The array where swapping and complementing will occur.
      * @param firstIndex   Index of the first bit in the array to be swapped.

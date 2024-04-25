@@ -9,7 +9,7 @@ import java.util.List;
 
 
 /**
- * Implements a crossover strategy that splits the chromosomes to its genes  and exchanges segments
+ * Implements a crossover strategy that splits the chromosomes to its genes and exchanges segments
  * between two parent chromosomes to produce offspring. This strategy aims to combine genetic
  * material from both parents while maintaining segments of individual genes, potentially
  * preserving beneficial gene combinations.

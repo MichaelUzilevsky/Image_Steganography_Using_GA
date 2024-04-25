@@ -30,7 +30,9 @@ public class FixedSizePriorityQueue<T extends Comparable<T>> {
     }
 
     /**
-     * Inserts a new element into the priority queue. If the heap is full, it throws an exception.
+     * Inserts a new element into the priority queue,
+     * maintaining the heap property by performing a bubble-up operation
+     * starting from the newly added element.
      *
      * @param element the element to insert
      * @throws IllegalStateException if the heap is already full
@@ -45,7 +47,8 @@ public class FixedSizePriorityQueue<T extends Comparable<T>> {
     }
 
     /**
-     * Extracts and returns the maximum element from the priority queue.
+     * Removes and returns the maximum element (root of the heap).
+     * Maintains the heap property by moving the last element to the root and performing a bubble-down operation.
      *
      * @return the maximum element
      * @throws IllegalStateException if the heap is empty
@@ -137,6 +140,7 @@ public class FixedSizePriorityQueue<T extends Comparable<T>> {
 
     /**
      * Inserts all elements from an array into the heap and builds a max heap.
+     * Replacing the current heap content.
      *
      * @param array the array from which elements are to be inserted
      * @throws IllegalArgumentException if the array size exceeds heap capacity
@@ -164,7 +168,8 @@ public class FixedSizePriorityQueue<T extends Comparable<T>> {
     }
 
     /**
-     * Extracts a random element from the priority queue within the given range.
+     *Extracts a random element from a specified range within the heap,
+     * maintaining the heap structure by swapping the chosen element with the last and re-adjusting the heap.
      *
      * @param start the starting index (inclusive)
      * @param end   the ending index (exclusive)

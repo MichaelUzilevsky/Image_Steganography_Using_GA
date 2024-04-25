@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import model.data_managers.image_metedate.ImageMetadata;
 import model.data_managers.image_metedate.MetadataSerializer;
 import model.utils.ConstantsClass;
+import model.utils.UtilsMethods;
 
 /**
  * Manages the process of embedding data into an image. This class supports embedding arbitrary data,
@@ -35,32 +36,23 @@ public class DataEmbedding {
      * @param metadata The metadata associated with the data, which is necessary for correctly extracting the data.
      * @return A new {@link WritableImage} with the data and metadata embedded within it.
      */
-    public WritableImage embedData(BitArray data,  ImageMetadata metadata) {
+    public WritableImage embedData(BitArray data, ImageMetadata metadata) {
         // Serialize metadata to BitArray
         BitArray metadataBitArray = MetadataSerializer.serialize(metadata);
 
-        // Calculate padding for the metadata BitArray
-        int metadataPaddingSize =
-                (ConstantsClass.ROUND_BITARRAY_TO - (metadataBitArray.size() % ConstantsClass.ROUND_BITARRAY_TO)) %
-                        ConstantsClass.ROUND_BITARRAY_TO;
-
         // Apply padding to metadata
-        BitArray paddedMetadata = new BitArray(metadataBitArray.size() + metadataPaddingSize);
-        paddedMetadata.set(0, metadataBitArray);
-
-        // Calculate padding for the data BitArray
-        int dataPaddingSize =
-                (ConstantsClass.ROUND_BITARRAY_TO - (data.size() % ConstantsClass.ROUND_BITARRAY_TO)) %
-                        ConstantsClass.ROUND_BITARRAY_TO;
+        BitArray paddedMetadata = addPaddingToBitArray(metadataBitArray);
 
         // Apply padding to data
-        BitArray paddedData = new BitArray(data.size() + dataPaddingSize);
-        paddedData.set(0, data);
+        BitArray paddedData = addPaddingToBitArray(data);
 
-        // Combine padded metadata and data into a new BitArray
-        BitArray combinedData = new BitArray(paddedMetadata.size() + paddedData.size());
-        combinedData.set(0, paddedMetadata);
-        combinedData.set(paddedMetadata.size(), paddedData);
+        // apply padding to signature
+        StringParser parser = new StringParser(ConstantsClass.ENCODING_PASSKEY);
+        BitArray temp = parser.convertToBitArray();
+        BitArray paddedSignature = addPaddingToBitArray(temp);
+
+        // Combine padded metadata and data and signature into a new BitArray
+        BitArray combinedData = combineBitArrays(paddedMetadata, paddedData, paddedSignature);
 
         int width = (int) originalImage.getWidth();
         int height = (int) originalImage.getHeight();
@@ -74,11 +66,12 @@ public class DataEmbedding {
         // Embed combinedData into the image
         for (int pixelIndex = 0; pixelIndex < pixelsToEmbed; pixelIndex++) {
             int dataIndex = pixelIndex * bitsForOnePixel;
-            int y = pixelIndex / width;
-            int x = pixelIndex % width;
+            int pixelY = pixelIndex / width;
+            int pixelX = pixelIndex % width;
 
-            if (x < width && y < height) {
+            if (pixelX < width && pixelY < height) {
                 int[] colorData = new int[ConstantsClass.BYTES_IN_PIXEL];
+                // getting the data from the bitarray for 1 pixel
                 for (int colorIndex = 0; colorIndex < ConstantsClass.BYTES_IN_PIXEL; colorIndex++) {
                     for (int bitIndex = 0; bitIndex < ConstantsClass.BITS_REPLACED_PER_BYTE; bitIndex++) {
                         if (combinedData.get(dataIndex + colorIndex * ConstantsClass.BITS_REPLACED_PER_BYTE + bitIndex)) {
@@ -87,16 +80,40 @@ public class DataEmbedding {
                     }
                 }
 
-                Color originalColor = originalImage.getPixelReader().getColor(x, y);
+                // setting the color of the pixel of the image
+                Color originalColor = originalImage.getPixelReader().getColor(pixelX, pixelY);
                 int red = ((int) (originalColor.getRed() * 255) & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | colorData[0];
                 int green = ((int) (originalColor.getGreen() * 255) & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | colorData[1];
                 int blue = ((int) (originalColor.getBlue() * 255) & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | colorData[2];
 
                 Color newColor = Color.rgb(red, green, blue, 1.0);
-                pixelWriter.setColor(x, y, newColor);
+                pixelWriter.setColor(pixelX, pixelY, newColor);
             }
         }
 
         return writableImage;
+    }
+
+
+
+    public BitArray addPaddingToBitArray(BitArray bitArray){
+        int padding = UtilsMethods.calculatePadding(bitArray.size());
+        BitArray temp = new BitArray(bitArray.size() + padding);
+        temp.set(0, bitArray);
+        return temp;
+    }
+
+    public BitArray combineBitArrays(BitArray... arrays){
+        int sum = 0;
+        for (BitArray bitArray : arrays){
+            sum += bitArray.size();
+        }
+        BitArray total = new BitArray(sum);
+        int offset = 0;
+        for (BitArray bitArray : arrays){
+            total.set(offset, bitArray);
+            offset += bitArray.size();
+        }
+        return total;
     }
 }

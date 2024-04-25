@@ -92,7 +92,6 @@ public class GeneticAlgorithm {
         population.initializeChromosomes(secretData.length() * ConstantsClass.BITS_PER_BYTE);
     }
 
-
     /**
      * Executes the genetic algorithm, iterating through generations and applying genetic operations
      * to optimize the embedding of the secret data into the image. The method returns the image with
@@ -104,7 +103,7 @@ public class GeneticAlgorithm {
         int elitismSize = (int) (population.getPopulationSize() * ELITISM_PERCENTAGE);
         int selectionSize = population.getPopulationSize() - elitismSize;
 
-        for (int i = 0; i < GENERATIONS; i++) {
+        for (int i = 1; i <= GENERATIONS; i++) {
             System.out.println("generation "+ i+" population Size " + population.getPopulationSize());
 
             // Evaluate fitness of the current generation
@@ -173,6 +172,7 @@ public class GeneticAlgorithm {
     /**
      * Performs crossover on a set of selected chromosomes to produce offspring. The method pairs
      * chromosomes and applies a crossover strategy to each pair, generating new chromosomes (offspring).
+     * Mixing genetic material between pairs of chromosomes according to the crossover strategy.
      *
      * @param selectedForCrossover The array of chromosomes selected for crossover.
      * @return An array of chromosomes resulting from the crossover process.
@@ -222,6 +222,8 @@ public class GeneticAlgorithm {
      * Finds and sets the best flexible gene value for a given chromosome based on fitness evaluation.
      * This method iterates through all possible combinations of the flexible gene, selects the one
      * that results in the highest fitness, and updates the chromosome accordingly.
+     * Optimizes a single chromosome by testing different configurations of its flexible genes,
+     * setting the chromosome's genes to the configuration that results in the highest fitness.
      *
      * @param chromosome The chromosome to optimize.
      */

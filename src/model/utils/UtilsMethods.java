@@ -102,7 +102,7 @@ public class UtilsMethods {
      */
     public static int secretMessageMaxLength(int imageWidth, int imageHeight){
         return (maxDataSizeNoHeaderInBits(imageWidth, imageHeight) - ImageMetadata.getSizeInBits(imageWidth, imageHeight))
-                / ConstantsClass.BITS_PER_BYTE;
+                / ConstantsClass.BITS_PER_BYTE - ConstantsClass.ENCODING_PASSKEY.length();
     }
 
     /**
@@ -134,5 +134,10 @@ public class UtilsMethods {
             text.append(c);
         }
         return text.toString();
+    }
+
+    public static int calculatePadding(int originalSize){
+        return (ConstantsClass.ROUND_BITARRAY_TO - (originalSize % ConstantsClass.ROUND_BITARRAY_TO)) %
+                ConstantsClass.ROUND_BITARRAY_TO;
     }
 }

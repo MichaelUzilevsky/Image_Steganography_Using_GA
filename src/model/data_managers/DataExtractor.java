@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import model.data_managers.image_metedate.ImageMetadata;
 import model.data_managers.image_metedate.MetadataSerializer;
 import model.utils.ConstantsClass;
+import model.utils.UtilsMethods;
 
 /**
  * Handles the extraction of embedded data and metadata from an image that has been
@@ -93,16 +94,32 @@ public class DataExtractor {
      * @return A {@link BitArray} containing the extracted data.
      */
     public BitArray extractData(ImageMetadata metadata) {
-        int metadataSizeWithPadding = calculateMetadataSize() +
-                (ConstantsClass.ROUND_BITARRAY_TO - (calculateMetadataSize() % ConstantsClass.ROUND_BITARRAY_TO)) %
-                        ConstantsClass.ROUND_BITARRAY_TO;
+        int metaDataSize = calculateMetadataSize();
+        int metadataSizeWithPadding = metaDataSize + UtilsMethods.calculatePadding(metaDataSize);
 
-        // Calculate the total bits to extract, which should ideally come from metadata or be known a priori
-        int totalBitsToExtract = calculateTotalBitsToExtract(metadata);
-        BitArray allBits = extractBitsFromImage(totalBitsToExtract);
+        // Calculate the total bits to extract, which  come from metadata
+        int totalBitsToExtract = calculateTotalBitsToExtract(metadata); // no signature
+        int signatureSize = ConstantsClass.ENCODING_PASSKEY.length() * ConstantsClass.BITS_PER_BYTE;
+
+        BitArray allBits = extractBitsFromImage(totalBitsToExtract + signatureSize);
 
         // Extract just the data, starting after the metadata and its padding
-        int dataSize = metadata.getDataLength(); // Assuming this directly gives the data size without padding
+        int dataSize = metadata.getDataLength();  //the data size without padding
+        int paddedDataSize = dataSize + UtilsMethods.calculatePadding(dataSize);
+
+        // validate signature
+        BitArray signature = new BitArray(signatureSize);
+
+        for (int i = 0; i < signatureSize; i++) {
+            boolean bit = allBits.get(metadataSizeWithPadding + paddedDataSize + i); // Start right after metadata and data and its padding
+            signature.set(i, bit);
+        }
+
+        if (!UtilsMethods.convertBitArrayToItsChars(signature).equals(ConstantsClass.ENCODING_PASSKEY)){
+            return null;
+        }
+
+        // get the data
         BitArray dataBits = new BitArray(dataSize);
 
         for (int i = 0; i < dataSize; i++) {

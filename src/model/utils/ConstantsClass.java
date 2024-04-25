@@ -13,4 +13,5 @@ public class ConstantsClass {
     public static final int FLEXIBLE_GENE_SIZE = 5; // 4! = 24 -> 11000 MAX 5 BITS
     public static final int DATA_DIRECTION_SIZE = 1; // 0 OR 1
     public static final int DATA_POLARITY_SIZE = 2; // 00 01 10 11
+    public static String ENCODING_PASSKEY = "Encoded by Michael Uzilevsky";
 }
