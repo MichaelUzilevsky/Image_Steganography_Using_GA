@@ -42,22 +42,36 @@ public class DataExtractor {
         for (int y = 0; y < height && extractedBitCount < totalBitsToExtract; y++) {
             for (int x = 0; x < width && extractedBitCount < totalBitsToExtract; x++) {
                 Color color = stegoImage.getPixelReader().getColor(x, y);
-                // Extracting bits from each color component, in the order red, green, blue
-                int[] colors = {(int) (color.getRed() * 255), (int) (color.getGreen() * 255), (int) (color.getBlue() * 255)};
 
-                for (int colorIndex = 0; colorIndex < ConstantsClass.BYTES_IN_PIXEL; colorIndex++) {
-                    for (int bitIndex = 0; bitIndex < ConstantsClass.BITS_REPLACED_PER_BYTE; bitIndex++) {
-                        // Mask the LSBs of the color component to extract the bit
-                        boolean bit = (colors[colorIndex] & (1 << bitIndex)) != 0;
-                        if (extractedBitCount < totalBitsToExtract) {
-                            extractedBits.set(extractedBitCount++, bit);
-                        }
-                    }
-                }
+                extractedBitCount = extractBitsFromColor(color, extractedBits, extractedBitCount, totalBitsToExtract);
             }
         }
 
         return extractedBits;
+    }
+
+    /**
+     * Extracts bits from the given color components and adds them to the extractedBits array.
+     *
+     * @param color             The pixel containing red, green, and blue color components.
+     * @param extractedBits      The BitArray to which the extracted bits will be added.
+     * @param extractedBitCount  The current count of extracted bits.
+     * @param totalBitsToExtract The total number of bits to be extracted.
+     * @return The updated count of extracted bits.
+     */
+    private int extractBitsFromColor(Color color, BitArray extractedBits, int extractedBitCount, int totalBitsToExtract) {
+        // Extracting bits from each color component, in the order red, green, blue
+        int[] colors = {(int) (color.getRed() * 255), (int) (color.getGreen() * 255), (int) (color.getBlue() * 255)};
+
+        for (int colorIndex = 0; colorIndex < ConstantsClass.BYTES_IN_PIXEL; colorIndex++) {
+            for (int bitIndex = 0; bitIndex < ConstantsClass.BITS_REPLACED_PER_BYTE; bitIndex++) {
+                boolean bit = (colors[colorIndex] & (1 << bitIndex)) != 0;
+                if (extractedBitCount < totalBitsToExtract) {
+                    extractedBits.set(extractedBitCount++, bit);
+                }
+            }
+        }
+        return extractedBitCount;
     }
 
     /**

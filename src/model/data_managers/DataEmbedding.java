@@ -37,22 +37,8 @@ public class DataEmbedding {
      * @return A new {@link WritableImage} with the data and metadata embedded within it.
      */
     public WritableImage embedData(BitArray data, ImageMetadata metadata) {
-        // Serialize metadata to BitArray
-        BitArray metadataBitArray = MetadataSerializer.serialize(metadata);
-
-        // Apply padding to metadata
-        BitArray paddedMetadata = addPaddingToBitArray(metadataBitArray);
-
-        // Apply padding to data
-        BitArray paddedData = addPaddingToBitArray(data);
-
-        // apply padding to signature
-        StringParser parser = new StringParser(ConstantsClass.ENCODING_PASSKEY);
-        BitArray temp = parser.convertToBitArray();
-        BitArray paddedSignature = addPaddingToBitArray(temp);
-
-        // Combine padded metadata and data and signature into a new BitArray
-        BitArray combinedData = combineBitArrays(paddedMetadata, paddedData, paddedSignature);
+        // Prepare combined data for embedding
+        BitArray combinedData = prepareDataForEmbedding(data, metadata);
 
         int width = (int) originalImage.getWidth();
         int height = (int) originalImage.getHeight();
@@ -70,31 +56,85 @@ public class DataEmbedding {
             int pixelX = pixelIndex % width;
 
             if (pixelX < width && pixelY < height) {
-                int[] colorData = new int[ConstantsClass.BYTES_IN_PIXEL];
-                // getting the data from the bitarray for 1 pixel
-                for (int colorIndex = 0; colorIndex < ConstantsClass.BYTES_IN_PIXEL; colorIndex++) {
-                    for (int bitIndex = 0; bitIndex < ConstantsClass.BITS_REPLACED_PER_BYTE; bitIndex++) {
-                        if (combinedData.get(dataIndex + colorIndex * ConstantsClass.BITS_REPLACED_PER_BYTE + bitIndex)) {
-                            colorData[colorIndex] |= (1 << bitIndex);
-                        }
-                    }
-                }
+                int[] colorData = extractBitsForPixel(combinedData, dataIndex);
 
-                // setting the color of the pixel of the image
-                Color originalColor = originalImage.getPixelReader().getColor(pixelX, pixelY);
-                int red = ((int) (originalColor.getRed() * 255) & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | colorData[0];
-                int green = ((int) (originalColor.getGreen() * 255) & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | colorData[1];
-                int blue = ((int) (originalColor.getBlue() * 255) & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | colorData[2];
-
-                Color newColor = Color.rgb(red, green, blue, 1.0);
-                pixelWriter.setColor(pixelX, pixelY, newColor);
+                // Update the pixel color with embedded bits
+                updatePixelColor(pixelWriter, pixelX, pixelY, colorData);
             }
         }
-
         return writableImage;
     }
 
+    /**
+     * Prepares the data, metadata, and signature for embedding by serializing,
+     * padding, and combining them into a single BitArray.
+     *
+     * @param data The data to be embedded.
+     * @param metadata The metadata associated with the data.
+     * @return A combined BitArray ready for embedding into the image.
+     */
+    private BitArray prepareDataForEmbedding(BitArray data, ImageMetadata metadata) {
+        // Serialize metadata to BitArray
+        BitArray metadataBitArray = MetadataSerializer.serialize(metadata);
 
+        // Apply padding to metadata, data, and signature
+        BitArray paddedMetadata = addPaddingToBitArray(metadataBitArray);
+        BitArray paddedData = addPaddingToBitArray(data);
+        BitArray paddedSignature = addPaddingToBitArray(new StringParser(ConstantsClass.ENCODING_PASSKEY).convertToBitArray());
+
+        // Combine padded metadata, data, and signature into a new BitArray
+        return combineBitArrays(paddedMetadata, paddedData, paddedSignature);
+    }
+
+    /**
+     * Extracts bits for a pixel from the combined data.
+     *
+     * @param combinedData The combined BitArray of metadata, data, and signature.
+     * @param dataIndex The starting index in the combined BitArray for the pixel.
+     * @return An array of color data with the extracted bits embedded.
+     */
+    private int[] extractBitsForPixel(BitArray combinedData, int dataIndex) {
+        int[] colorData = new int[ConstantsClass.BYTES_IN_PIXEL];
+        // getting the data from the bitarray for 1 pixel
+        for (int colorIndex = 0; colorIndex < ConstantsClass.BYTES_IN_PIXEL; colorIndex++) {
+            for (int bitIndex = 0; bitIndex < ConstantsClass.BITS_REPLACED_PER_BYTE; bitIndex++) {
+                if (combinedData.get(dataIndex + colorIndex * ConstantsClass.BITS_REPLACED_PER_BYTE + bitIndex)) {
+                    colorData[colorIndex] |= (1 << bitIndex);
+                }
+            }
+        }
+        return colorData;
+    }
+
+    /**
+     * Updates the color of a pixel in the image.
+     *
+     * @param pixelWriter The PixelWriter to update the pixel.
+     * @param pixelX The X coordinate of the pixel.
+     * @param pixelY The Y coordinate of the pixel.
+     * @param colorData The array of color data with embedded bits.
+     */
+    private void updatePixelColor(PixelWriter pixelWriter, int pixelX, int pixelY, int[] colorData) {
+        Color originalColor = originalImage.getPixelReader().getColor(pixelX, pixelY);
+        // setting the color of the pixel of the image
+        int red = embedBitsIntoColor((int) (originalColor.getRed() * 255), colorData[0]);
+        int green = embedBitsIntoColor((int) (originalColor.getGreen() * 255), colorData[1]);
+        int blue = embedBitsIntoColor((int) (originalColor.getBlue() * 255), colorData[2]);
+
+        Color newColor = Color.rgb(red, green, blue, 1.0);
+        pixelWriter.setColor(pixelX, pixelY, newColor);
+    }
+
+    /**
+     * Embeds bits into a color component.
+     *
+     * @param originalColorComponent The original color component value.
+     * @param bitsToEmbed The bits to embed into the color component.
+     * @return The new color component value with the bits embedded.
+     */
+    private int embedBitsIntoColor(int originalColorComponent, int bitsToEmbed) {
+        return (originalColorComponent & (0xFF << ConstantsClass.BITS_REPLACED_PER_BYTE)) | bitsToEmbed;
+    }
 
     public BitArray addPaddingToBitArray(BitArray bitArray){
         int padding = UtilsMethods.calculatePadding(bitArray.size());
