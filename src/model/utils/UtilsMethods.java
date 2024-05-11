@@ -140,4 +140,9 @@ public class UtilsMethods {
         return (ConstantsClass.ROUND_BITARRAY_TO - (originalSize % ConstantsClass.ROUND_BITARRAY_TO)) %
                 ConstantsClass.ROUND_BITARRAY_TO;
     }
+    public static int factorial(int n)
+    {
+        return ((n == 1) || (n == 0)) ? 1
+                : (n * factorial(n - 1));
+    }
 }

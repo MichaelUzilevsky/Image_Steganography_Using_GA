@@ -153,12 +153,7 @@ public class DataExtractor {
      *         and their respective padding.
      */
     private int calculateTotalBitsToExtract(ImageMetadata metadata) {
-
-        return calculateMetadataSize() +
-                (ConstantsClass.ROUND_BITARRAY_TO - (calculateMetadataSize() % ConstantsClass.ROUND_BITARRAY_TO)) %
-                ConstantsClass.ROUND_BITARRAY_TO +
-                metadata.getDataLength() +
-                (ConstantsClass.ROUND_BITARRAY_TO - (metadata.getDataLength() % ConstantsClass.ROUND_BITARRAY_TO)) %
-                        ConstantsClass.ROUND_BITARRAY_TO;
+        return calculateMetadataSize() + UtilsMethods.calculatePadding(calculateMetadataSize()) +
+                metadata.getDataLength() + UtilsMethods.calculatePadding(metadata.getDataLength());
     }
 }

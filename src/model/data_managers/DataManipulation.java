@@ -4,7 +4,6 @@ import model.genetic_algorithm.population_structure.Chromosome;
 import model.genetic_algorithm.population_structure.Genes;
 import model.utils.UtilsMethods;
 
-
 /**
  * Facilitates the manipulation of data intended for steganography embedding
  * within an image. This class provides methods for modifying a {@link BitArray}

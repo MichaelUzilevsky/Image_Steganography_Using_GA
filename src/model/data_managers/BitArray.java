@@ -85,7 +85,6 @@ public class BitArray implements Cloneable{
         }
     }
 
-
     /**
      * Gets the value of a bit at a specified index.
      *

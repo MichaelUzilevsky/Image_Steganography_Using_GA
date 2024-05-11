@@ -3,6 +3,7 @@ package model.genetic_algorithm.fitness;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
+import model.utils.ConstantsClass;
 
 /**
  * Implements a fitness function based on the PSNR (Peak Signal-to-Noise Ratio)
@@ -11,6 +12,8 @@ import javafx.scene.paint.Color;
  * measure of the distortion introduced by embedding data within the image.
  */
 public class PSNRFitnessFunction implements FitnessFunction {
+    private static final double FACTOR = 20;
+    private static final double MAX_INTENSITY = 1;
 
     /**
      * Calculates the fitness of an image modification based on the PSNR between
@@ -58,16 +61,12 @@ public class PSNRFitnessFunction implements FitnessFunction {
             }
         }
 
-        double mse = (mseR + mseG + mseB) / 3.0 / (width * height);
+        double mse = (mseR + mseG + mseB) / ConstantsClass.BYTES_IN_PIXEL / (width * height);
 
         if (mse == 0) {
             return Double.POSITIVE_INFINITY;
         }
 
-        double maxI = 1.0; // Maximum intensity value for color channels in the range [0,1]
-        double psnr;
-        psnr = 20 * Math.log10(maxI / Math.sqrt(mse));
-
-        return psnr;
+        return FACTOR * Math.log10(MAX_INTENSITY / Math.sqrt(mse));
     }
 }

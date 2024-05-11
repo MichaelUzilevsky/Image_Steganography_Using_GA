@@ -17,6 +17,8 @@ import java.util.Random;
  */
 public class Chromosome implements Comparable<Chromosome> {
     public static final Random random = new Random();
+    public static final int GENES_AMOUNT = 4;
+    public static final double MUTATION_PROBABILITY = 0.2;
 
     private static GeneSizeManager geneSizeManager;
     private final int[] genesStartingIndex;
@@ -42,8 +44,8 @@ public class Chromosome implements Comparable<Chromosome> {
 
         this.fitnessScore = -1;
 
-        genesOrder = new Genes[4];
-        genesStartingIndex = new int[4];
+        genesOrder = new Genes[GENES_AMOUNT];
+        genesStartingIndex = new int[GENES_AMOUNT];
 
         initiateChromosome();
     }
@@ -62,8 +64,8 @@ public class Chromosome implements Comparable<Chromosome> {
 
         setGeneSizeManager(numberOfSwapsSize, offsetSize);
 
-        genesOrder = new Genes[4];
-        genesStartingIndex = new int[4];
+        genesOrder = new Genes[GENES_AMOUNT];
+        genesStartingIndex = new int[GENES_AMOUNT];
 
         setIndexesForGenes(flexibleGene.toInt());
     }
@@ -87,8 +89,8 @@ public class Chromosome implements Comparable<Chromosome> {
 
         this.fitnessScore = -1;
 
-        genesOrder = new Genes[4];
-        genesStartingIndex = new int[4];
+        genesOrder = new Genes[GENES_AMOUNT];
+        genesStartingIndex = new int[GENES_AMOUNT];
 
         flexibleGene.modifyBitArrayByNumber(fc);
         setIndexesForGenes(flexibleGene.toInt());
@@ -187,9 +189,9 @@ public class Chromosome implements Comparable<Chromosome> {
      * @param geneSize the size of this gene.
      */
     private void mutateGene(int start, int geneSize) {
-        double mutationProbability = 0.5;
+
         for (int i = 0; i < geneSize; i++) {
-            if (random.nextDouble() <= mutationProbability)
+            if (random.nextDouble() <= MUTATION_PROBABILITY)
                 genes.flip(start + i);
         }
     }
@@ -201,19 +203,23 @@ public class Chromosome implements Comparable<Chromosome> {
      * @param flexibleGeneValue The value of the flexible gene used to determine the permutation.
      */
     public void setIndexesForGenes(int flexibleGeneValue) {
-        flexibleGeneValue %= 24;
+        flexibleGeneValue %= ConstantsClass.POSSIBLE_COMBINATIONS_AMOUNT_FOR_FLEXIBLE_GENE;
         int tempFlexibleGeneValue = flexibleGeneValue;
         List<Genes> availableGenes = new ArrayList<>(Arrays.asList(Genes.NS, Genes.OFF, Genes.DD, Genes.DP));
-        int[] factorials = {6, 2, 1}; // Factorials for n-1, n-2, n-3 (for n=4)
 
-        for (int i = 0; i < 3; i++) { // Only need to calculate the first 3 positions
-            int pos = tempFlexibleGeneValue / factorials[i] % (4 - i); // Ensure pos is within the current list size
+        int[] factorials = new int[GENES_AMOUNT - 1];
+        for (int i = 0; i < GENES_AMOUNT - 1; i++){
+            factorials[i] = UtilsMethods.factorial(GENES_AMOUNT - 1 - i);
+        }
+
+        for (int i = 0; i < GENES_AMOUNT - 1; i++) { // Only need to calculate the first 3 positions
+            int pos = tempFlexibleGeneValue / factorials[i] % (GENES_AMOUNT - i); // Ensure pos is within the current list size
             tempFlexibleGeneValue %= factorials[i];
             genesOrder[i] = availableGenes.remove(pos);
         }
 
         // Last number is the remaining one
-        genesOrder[3] = availableGenes.get(0);
+        genesOrder[GENES_AMOUNT - 1] = availableGenes.get(0);
 
         setIndexes(genesOrder);
 

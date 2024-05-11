@@ -21,6 +21,12 @@ public class SSIMFitnessFunction implements FitnessFunction{
     public static final double GREEN_WEIGHT = 0.587;
     public static final double BLUE_WEIGHT = 0.114;
 
+    // Constants for SSIM calculation
+    public static final double k1 = 0.01;
+    public static final double k2 = 0.03;
+    public static final double L = 255;
+
+    public static final double FACTOR = 2;
 
     /**
      * Calculates the fitness of a modified image using the Structural Similarity Index.
@@ -138,14 +144,11 @@ public class SSIMFitnessFunction implements FitnessFunction{
     }
 
     private double calculateSSIM(double mean1, double mean2, double variance1, double variance2, double covariance){
-        // Constants for SSIM calculation
-        final double k1 = 0.01;
-        final double k2 = 0.03;
-        final double L = 255;
+
         final double C1 = (k1 * L) * (k1 * L);
         final double C2 = (k2 * L) * (k2 * L);
 
-        double numerator = (2 * mean1 * mean2 + C1) * (2 * covariance + C2);
+        double numerator = (FACTOR * mean1 * mean2 + C1) * (FACTOR * covariance + C2);
         double denominator = (mean1 * mean1 + mean2 * mean2 + C1) * (variance1 + variance2 + C2);
 
         return numerator / denominator;
